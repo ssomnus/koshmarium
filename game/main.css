@@ -23,7 +23,7 @@ body{
 	display: none;
 }
 
-.signup{
+.signin{
 	position: relative;
 	width:100%;
 	height: 100%;
@@ -88,11 +88,11 @@ button:hover{
 	transform: scale(.6);
 }
 
-#chk:checked ~ .login{
+#chk:checked ~ .registration{
 	transform: translateY(-500px);
 }
 
-#chk:checked ~ .login label{
+#chk:checked ~ .registration label{
 	transform: scale(1);	
 }
 

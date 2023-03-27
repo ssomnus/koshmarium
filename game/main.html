@@ -13,23 +13,18 @@
 <body>
     <div class="main">  	
 		<input type="checkbox" id="chk" aria-hidden="true">
-
-			<div class="signup">
-				<form id="sig">
-					<label for="chk" aria-hidden="true">Вход</label>
-					<input class="log1" type="text" name="txt" placeholder="Логин" required>
-					<input class="pas1" type="password" name="pswd" placeholder="Пароль" required>
-					<button onclick="signin()">Войти</button>
-				</form>
+			<div class="signin">
+				<label for="chk" aria-hidden="true">Вход</label>
+				<input id="log1" type="text" name="txt" placeholder="Логин" required>
+				<input id="pas1" type="password" name="pswd" placeholder="Пароль" required>
+				<button onclick="signin()">Войти</button>
 			</div>
 
 			<div class="registration">
-				<form id="reg">
-					<label for="chk" aria-hidden="true">Регистрация</label>
-					<input class="log2" type="text" name="txt" placeholder="Логин" required>
-					<input class="pas2" type="password" name="pswd" placeholder="Пароль" required>
-					<button onclick="register()">Зарегистрироваться</button>
-				</form>
+				<label for="chk" aria-hidden="true">Регистрация</label>
+				<input id="log2" type="text" name="txt" placeholder="Логин" required>
+				<input id="pas2" type="password" name="pswd" placeholder="Пароль" required>
+				<button onclick="register()">Зарегистрироваться</button>
 			</div>
 	</div>
 
