@@ -9,25 +9,101 @@
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="main.css">
+	<script src="main.js"></script>
 </head>
 <body>
-    <div class="main">  	
+	<!-- Вход и регистрация -->
+    <div class="main">
 		<input type="checkbox" id="chk" aria-hidden="true">
+			<!-- Вход -->
 			<div class="signin">
 				<label for="chk" aria-hidden="true">Вход</label>
 				<input id="log1" type="text" name="txt" placeholder="Логин" required>
 				<input id="pas1" type="password" name="pswd" placeholder="Пароль" required>
-				<button onclick="signin()">Войти</button>
+				<button id="signBut" onclick="signin()">Войти</button>
 			</div>
 
+			<!-- Регистрация -->
 			<div class="registration">
 				<label for="chk" aria-hidden="true">Регистрация</label>
 				<input id="log2" type="text" name="txt" placeholder="Логин" required>
 				<input id="pas2" type="password" name="pswd" placeholder="Пароль" required>
-				<button onclick="register()">Зарегистрироваться</button>
+				<button id="regBut" onclick="register()">Зарегистрироваться</button>
 			</div>
 	</div>
 
-	<script src="main.js"></script>
+	<!-- Доступные комнаты -->
+	<div class="rooms hide">
+		<!-- Кнопка для создания новой комнаты -->
+		<button class="cr-room">Создать комнату</button>
+
+		<!-- Параметры для новой комнаты -->
+		<div class="par-new-room hide">
+			<h3>Параметры комнаты:</h3>
+			<div class="cplayer"></div>
+				<p>Количество игроков <span class="cplayer-value"></span></p>
+				<input type="range" id="count-player" min="2" max="5" step="1" value="2">
+			</div>
+			<div class="tmove"></div>
+				<p>Время на ход <span class="tmove-value"></span> сек</p>
+				<input type="range" id="time-move" min="60" max="86400" step="10" value="60">
+			</div>
+			<button class="hide" onclick="newRoom()">Создать</button>
+		</div>
+
+		<!-- Все свободные комнаты -->
+		<div class="all-rooms"></div>
+
+		<!-- Комнаты игрока -->
+		<div class="my-rooms"></div>
+	</div>
+
+	<!-- Игра -->
+	<div class="game hide">
+
+		<!-- Колода -->
+		<div class="deck"></div>
+
+		<!-- Карты игрока -->
+		<div class="my-cards"></div>
+
+		<!-- Игровое поле -->
+		<div class="pole">
+
+			<!-- Поле игрока -->
+			<div class="my-pole">
+				<div class="monsters">
+					<div class="monster1">
+						<div class="mcards1"></div>
+						<div class="mcards2"></div>
+						<div class="mcards3"></div>
+					</div>
+					<div class="monster2">
+						<div class="mcards1"></div>
+						<div class="mcards2"></div>
+						<div class="mcards3"></div>
+					</div>
+					<div class="monster3">
+						<div class="mcards1"></div>
+						<div class="mcards2"></div>
+						<div class="mcards3"></div>
+					</div>
+					<div class="monster4">
+						<div class="mcards1"></div>
+						<div class="mcards2"></div>
+						<div class="mcards3"></div>
+					</div>
+					<div class="monster5">
+						<div class="mcards1"></div>
+						<div class="mcards2"></div>
+						<div class="mcards3"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Поле противника -->
+			<div class="pole-opponent"></div>
+		</div>
+	</div>
 </body>
 </html>

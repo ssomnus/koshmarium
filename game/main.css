@@ -99,3 +99,14 @@ button:hover{
 #chk:checked ~ .signup label{
 	transform: scale(.6);
 }
+
+.hide{
+	display: none;
+}
+
+/* Прокручивание карточек горизонтально */
+.my-cards{
+	overflow-x: scroll;
+	overflow-y: hidden;
+	white-space: nowrap;
+}
