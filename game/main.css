@@ -131,7 +131,7 @@ button:hover{
 }
 
 .player-2 {
-	background: red;
+	background-image: none;
 	right: 0;
 }
 
@@ -145,4 +145,12 @@ button:hover{
 	background: blue;
 	bottom: 0;
 	right: 0;
+}
+
+.deck {
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
