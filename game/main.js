@@ -16,8 +16,10 @@ countPlayerValue.addEventListener('input',function (){
     countPlayer.innerHTML = countPlayerValue.value;
 })
 
+let inWaitingRoom = false;
 let showRoom = true;
 let token;
+let room_id;
 
 function signin() {
     const url = "https://sql.lavro.ru/call.php?";
@@ -117,19 +119,6 @@ function displayRooms(){
                             "ID комнаты: "+r[0].ID_Room[i] + " | Количество мест: " + r[0].MaxSeats[i] + " | игроков сейчас: " + r[0].count_players[i] +
                             "</div>";
                     }
-                    v.innerHTML += '<br><br>'
-                    v = document.getElementsByClassName('my-rooms')[0];
-                    v.innerHTML = ' ';
-                    let prev = r[1].ID_Room[0];
-                    for (let i = 0; i < r[1].ID_Room.length; i++){
-                        if (r[1].ID_Room[i] !== prev) v.innerHTML += '<br>';
-                        v.innerHTML +=
-                            "ID комнаты: " + r[1].ID_Room[i] +
-                            "| Login: " + r[1].Login[i] +
-                            " Номер места: " + r[1].SeatNumber[i] +
-                            "<br>"
-                        prev = r[1].ID_Room[i];
-                    }
                 }
             });
         }
@@ -142,8 +131,27 @@ function openNewRoom(){
     document.getElementsByClassName('all-rooms')[0].classList.add('hide');
     document.getElementsByClassName('my-rooms')[0].classList.add('hide');
     document.getElementsByClassName('cr-room')[0].classList.add('hide');
+    document.getElementById('btnCmb').classList.add('hide')
+    document.getElementById('connectRoom').classList.add('hide')
     showRoom = false;
 }
+
+function backToReg(){
+    start.classList.remove("hide");
+    roomList.classList.add("hide");
+}
+
+function backToRooms(){
+    document.getElementsByClassName('par-new-room')[0].classList.add('hide');
+    document.getElementsByClassName('all-rooms')[0].classList.remove('hide');
+    document.getElementsByClassName('my-rooms')[0].classList.remove('hide');
+    document.getElementsByClassName('cr-room')[0].classList.remove('hide');
+    document.getElementById('btnCmb').classList.remove('hide')
+    document.getElementById('connectRoom').classList.remove('hide')
+    showRoom = true;
+    displayRooms()
+}
+
 
 function newRoom() {
     const url = "https://sql.lavro.ru/call.php?";
@@ -162,9 +170,95 @@ function newRoom() {
             return response.json()
         }
         else{
-            return error("Ошибка");
+            return ("Ошибка");
         }
     }).then((responseJSON) => {
         console.log(responseJSON)
+        room_id = responseJSON.RESULTS[0].ID[0];
+        displayWaitingRoom()
     });
+}
+
+function enterRoom() {
+    let q = document.getElementById("roomIdInput").value;
+    const url = "https://sql.lavro.ru/call.php?";
+    let fd = new FormData();
+    fd.append("pname", "EntranceRoom");
+    fd.append("db", "265117");
+    fd.append("p1", token);
+    fd.append("p2", q);
+    room_id = q;
+    fetch(url, {
+        method: "POST",
+        body: fd
+    }).then((response) => {
+        if(response.ok){
+            return response.json()
+        }
+        else{
+            return error("Ошибка");
+        }
+    }).then((responseJSON) => {
+        displayWaitingRoom()
+        console.log(responseJSON)
+    });
+}
+
+function displayWaitingRoom(){
+    document.getElementsByClassName('par-new-room')[0].classList.add('hide');
+    document.getElementsByClassName('all-rooms')[0].classList.add('hide');
+    document.getElementsByClassName('my-rooms')[0].classList.add('hide');
+    document.getElementsByClassName('cr-room')[0].classList.add('hide');
+    document.getElementById('btnCmb').classList.add('hide');
+    document.getElementById('connectRoom').classList.add('hide');
+    document.getElementsByClassName('stayAtroom')[0].classList.remove('hide')
+    showRoom = false;
+    inWaitingRoom = true;
+
+    roomState()
+}
+
+function roomState(){
+    const url = "https://sql.lavro.ru/call.php?";
+    let fd = new FormData();
+    fd.append('pname', 'StayAtRoom');
+    fd.append('db', '265117');
+    fd.append('p1', token);
+    fd.append('p2', room_id);
+    fd.append('format', 'columns_compact');
+    const interval = setInterval(function() {
+        if (inWaitingRoom){
+            fetch(url, {
+                method: "POST",
+                body: fd
+            }).then((response) => {
+                if (response.ok){
+                    return response.json()
+                }
+                else {
+                    return show_error('ошибка сети)');
+                }
+            }).then((responseJSON) => {
+                let r = responseJSON.RESULTS;
+                console.log(r)
+                if (r[0].Error){
+                    alert(r[0].Error)
+                    clearInterval(interval)
+                    document.getElementsByClassName('stayAtroom')[0].classList.add('hide')
+                    backToRooms()
+                }
+                else {
+                    let v = document.getElementsByClassName('listPlayers')[0];
+                    v.innerHTML = ' ';
+                    for (let i = 0; i < r[0].ID_Player.length; i++){
+                        v.innerHTML +=
+                            "<div>" +
+                            "ID игрока: "+r[0].ID_Player[i] + " | Логин игрока " + r[0].Login[i] + " | место на поле " + r[0].SeatNumber[i] +
+                            "</div>";
+                    }
+                }
+            });
+        }
+        else clearInterval(interval);
+    }, 3000);
 }
