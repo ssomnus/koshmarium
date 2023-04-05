@@ -1,79 +1,99 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кошмариум. Вход</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кошмариум. Вход</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="main.css">
+  <link rel="stylesheet" type="text/css" href="main.css">
 
 </head>
 <body>
-  <!-- Вход и регистрация -->
-    <div class="main">
-    <input type="checkbox" id="chk" aria-hidden="true">
-      <!-- Вход -->
-      <div class="signin">
-        <label for="chk" aria-hidden="true">Вход</label>
-        <input id="log1" type="text" name="txt" placeholder="Логин" required>
-        <input id="pas1" type="password" name="pswd" placeholder="Пароль" required>
-        <button id="signBut" onclick="signin()">Войти</button>
-      </div>
-
-      <!-- Регистрация -->
-      <div class="registration">
-        <label for="chk" aria-hidden="true">Регистрация</label>
-        <input id="log2" type="text" name="txt" placeholder="Логин" required>
-        <input id="pas2" type="password" name="pswd" placeholder="Пароль" required>
-        <button id="regBut" onclick="register()">Зарегистрироваться</button>
-      </div>
+<!-- Вход и регистрация -->
+<div class="main">
+  <input type="checkbox" id="chk" aria-hidden="true">
+  <!-- Вход -->
+  <div class="signin">
+    <label for="chk" aria-hidden="true">Вход</label>
+    <input id="log1" type="text" name="txt" placeholder="Логин" required>
+    <input id="pas1" type="password" name="pswd" placeholder="Пароль" required>
+    <button id="signBut" onclick="signin()">Войти</button>
   </div>
 
-  <!-- Доступные комнаты -->
-  <div class="rooms hide">
-    <button id="btnCmb" onclick=""><img src="buttons/comeback.png"></button>
-    <!-- Кнопка для создания новой комнаты -->
-    <button class="cr-room" onclick="openNewRoom()">Создать комнату</button>
+  <!-- Регистрация -->
+  <div class="registration">
+    <label for="chk" aria-hidden="true">Регистрация</label>
+    <input id="log2" type="text" name="txt" placeholder="Логин" required>
+    <input id="pas2" type="password" name="pswd" placeholder="Пароль" required>
+    <button id="regBut" onclick="register()">Зарегистрироваться</button>
+  </div>
+</div>
 
-    <!-- Параметры для новой комнаты -->
-    <div class="par-new-room hide">
-      <button id="btnCls" onclick=""><img src="buttons/close.png"></button>
-      <h3>Параметры комнаты:</h3>
-      <div class="cplayer">
-        <p>Количество игроков <span class="cplayer-value"></span></p>
-        <input type="range" id="count-player" min="2" max="4" step="1" value="2">
-      </div>
-      <div class="tmove">
-        <p>Время на ход <span class="tmove-value"></span> сек</p>
-        <input type="range" id="time-move" min="60" max="86400" step="10" value="60">
-      </div>
-      <button id="createGameBtn" onclick="newRoom()">Создать</button>
+<!-- Доступные комнаты -->
+<div class="rooms hide">
+  <button id="btnCmb" onclick="backToReg()"><img src="button/comeback.png"></button>
+  <!-- Кнопка для создания новой комнаты -->
+  <button class="cr-room" onclick="openNewRoom()">Создать комнату</button>
+
+
+  <!-- Параметры для новой комнаты -->
+  <div class="par-new-room hide">
+    <button id="btnCls" onclick="backToRooms()"><img src="button/close.png"></button>
+    <h3>Параметры комнаты:</h3>
+    <div class="cplayer">
+      <p>Количество игроков <span class="cplayer-value"></span></p>
+      <input type="range" id="count-player" min="2" max="4" step="1" value="2">
     </div>
-
-    <!-- Все свободные комнаты -->
-    <div class="all-rooms">
-
+    <div class="tmove">
+      <p>Время на ход <span class="tmove-value"></span> сек</p>
+      <input type="range" id="time-move" min="60" max="86400" step="10" value="60">
     </div>
-
-    <!-- Комнаты игрока -->
-    <div class="my-rooms"></div>
+    <button id="createGameBtn" onclick="newRoom()">Создать</button>
   </div>
 
-  <!-- Игра -->
-  <div class="game hide">
+  <!-- Все свободные комнаты -->
+  <div class="all-rooms">
 
-    <!-- Колода -->
-    <div class="deck"></div>
+  </div>
+  <div id="connectRoom">
+    <input type="text" id="roomIdInput">
+    <button class="cr-room" onclick="enterRoom()">Подкючиться к комнате</button>
+  </div>
 
-    <!-- Карты игрока -->
-    <div class="my-cards"></div>
+  <!-- Комнаты игрока -->
+  <div class="my-rooms"></div>
 
-    <div class="oblast">
-      <div class="top">
-          <div class="pole player-1"><div class="monsters">
+  <div class="stayAtroom hide">
+    <h2>Ожидайте подключения всех игроков</h2>
+    <div class="listPlayers">
+
+    </div>
+    <button id="btnStartGame" onclick="">Начать игру</button>
+  </div>
+</div>
+
+<!-- Игра -->
+<div class="game hide">
+
+  <!-- Колода -->
+  <div class="deck"></div>
+
+  <!-- Карты игрока -->
+  <div class="my-cards hide"></div>
+
+  <div class="oblast">
+    <div class="top">
+      <div class="pole player-1">
+        <button id="" onclick="">Взять карту</button>
+        <button id="" onclick="">Сбросить карты</button>
+        <button id="" class="hide" onclick="">Сбросить</button>
+        <button id="" onclick="">Выложить карту</button>
+
+        <div class="monsters">
+          <div class="monst-top">
             <div class="monster1">
               <div class="mcards1"></div>
               <div class="mcards2"></div>
@@ -84,6 +104,9 @@
               <div class="mcards2"></div>
               <div class="mcards3"></div>
             </div>
+          </div>
+
+          <div class="monst-bottom">
             <div class="monster3">
               <div class="mcards1"></div>
               <div class="mcards2"></div>
@@ -100,17 +123,21 @@
               <div class="mcards3"></div>
             </div>
           </div>
-        </div>
 
-          <div class="pole player-2">2</div>
+          <button id="myCards" onclick="">Колода</button>
       </div>
-      <div class="bottom">
-          <div class="pole player-3">3</div>
+      </div>
 
-          <div class="pole player-4">4</div>
-      </div>
+      <div class="pole player-2">2</div>
+    </div>
+
+    <div class="bottom">
+      <div class="pole player-3">3</div>
+
+      <div class="pole player-4">4</div>
     </div>
   </div>
+</div>
 </body>
 <script src="main.js"></script>
 </html>
