@@ -1,10 +1,6 @@
-CREATE PROCEDURE Mockingbird(tkn INT, PlayerID INT, CardID INT, MonsterID INT)
-COMMENT "Способность Пересмешник (токен, ID игрока, ID монстра)"
+CREATE PROCEDURE Mockingbird(tkn INT, PlayerID INT, CardID INT, MonsterID INT, RoomID INT)
+COMMENT "Способность Пересмешник (токен, ID игрока, ID монстра, )"
 Mockingbird: BEGIN
-    /*Переменная для нахождения ID комнаты*/
-    DECLARE IDRoom INT DEFAULT (SELECT Rooms.ID FROM Rooms
-                                    JOIN Players ON Rooms.ID = Players.ID_Room
-                                    WHERE PlayerID = Players.ID);
 
     /*Является ли игрок текущим ходящим*/
     IF NOT EXISTS (SELECT * FROM Moves

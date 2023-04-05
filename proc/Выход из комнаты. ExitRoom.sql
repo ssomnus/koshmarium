@@ -7,7 +7,7 @@ ExitRoom: BEGIN
                                 JOIN Tokens ON Players.Login = Tokens.login
                                 WHERE ID_Room = RoomID AND token = tkn
                                 ORDER BY date DESC 
-                                LIMIT 1;)
+                                LIMIT 1)
 
     /*Проверка правильности ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 

@@ -1,3 +1,4 @@
+DROP PROCEDURE IF EXISTS DiscardAndTakeCard;
 CREATE PROCEDURE DiscardAndTakeCard(tkn INT, PlayerID INT, RoomID INT)
 COMMENT "Сбросить и взять новые карты из колоды (токен, ID игрока, ID комнаты)"
 DiscardAndTakeCard: BEGIN
@@ -8,7 +9,15 @@ DiscardAndTakeCard: BEGIN
                                     WHERE CardIsDiscarded = "YES" AND ID_Player = PlayerID AND token = tkn);
 
     /*Переменная для узнавания ID карты за 1 действие*/
-    DECLARE IDCard INT;
+    DECLARE CardID INT;
+
+    /*Переменная для узнавания места*/
+    DECLARE Seat INT DEFAULT(SELECT SeatNumber FROM Players
+                                WHERE ID = PlayerID);
+
+    /*Переменная для определения ID следующего ходящего*/
+    DECLARE NowPlayer INT DEFAULT(SELECT ID FROM Players
+                                        WHERE ID_Room = RoomID AND SeatNumber = 1);
 
     /*Проверка на правильность ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens
@@ -35,11 +44,7 @@ DiscardAndTakeCard: BEGIN
     END IF;
 
     /*Есть ли выбранные карты для сброса*/
-    IF discard IS NULL
-    -- IF NOT EXISTS (SELECT * FROM PlayerDeck
-    --                 JOIN Players ON PlayerDeck.ID_Player = Players.ID
-    --                 JOIN Tokens ON Players.Login = Tokens.login
-    --                 WHERE CardIsDiscarded = "YES" AND ID_Player = PlayerID AND token = tkn)
+    IF discard = 0
     THEN
         SELECT "У вас нет карт для сброса" AS Error;
         LEAVE DiscardAndTakeCard;
@@ -72,39 +77,48 @@ DiscardAndTakeCard: BEGIN
                 WHERE RemainingSteps = 2 AND ID = PlayerID AND token = tkn)
     THEN
         /*Изменить оставшееся количество действий*/
-        UPDATE Moves SET RemainingSteps = 1
+        UPDATE Moves
             JOIN Players ON Moves.ID_Player = Players.ID
             JOIN Tokens ON Players.Login = Tokens.login
+            SET RemainingSteps = 1
             WHERE ID_Player = PlayerID AND token = tkn;
             
-    /*Иначе это 2 действие за ход*/
+    /*Это 2 действие за ход*/
     ELSE
-        /*Проверка, было ли первое действие за ход выложить карту*/
+        /*Если 1 действием за ход было выложить карту*/
         IF EXISTS (SELECT * FROM CardsFirstStep
                     JOIN PlayerDeck ON CardsFirstStep.ID_Card = PlayerDeck.ID_Card
                     JOIN Players ON PlayerDeck.ID_Player = Players.ID
                     JOIN Tokens ON Players.Login = Tokens.login
                     WHERE ID_Player = PlayerID AND token = tkn)
         THEN
+            /*Узнаем ее значение*/
+            SET CardID = (SELECT ID_Card FROM CardsFirstStep
+                            JOIN PlayerDeck ON CardsFirstStep.ID_Card = PlayerDeck.ID_Card
+                            JOIN Players ON PlayerDeck.ID_Player = Players.ID
+                            JOIN Tokens ON Players.Login = Tokens.login
+                            WHERE ID_Player = PlayerID AND token = tkn);
+
             /*Удаляем из таблицы CardsFirstStep карту, которая там была*/
             DELETE CardsFirstStep FROM CardsFirstStep
                 JOIN PlayerDeck ON CardsFirstStep.ID_Card = PlayerDeck.ID_Card
                 JOIN Players ON PlayerDeck.ID_Player = Players.ID
                 JOIN Tokens ON Players.Login = Tokens.login
-                WHERE ID_Card = IDCard AND ID_Player = PlayerID AND token = tkn;
-
+                WHERE ID_Card = CardID AND ID_Player = PlayerID AND token = tkn;
+                                
             /*Удаляем эту карту из таблицы PlayerDeck*/
             DELETE PlayerDeck FROM PlayerDeck
                 JOIN Players ON PlayerDeck.ID_Player = Players.ID
                 JOIN Tokens ON Players.Login = Tokens.login
-                WHERE ID_Card = IDCard AND ID_Player = PlayerID AND token = tkn;
+                WHERE ID_Card = CardID AND ID_Player = PlayerID AND token = tkn;
         END IF;
 
         /*Изменить оставшееся количество действий*/
-            UPDATE Moves SET RemainingSteps = 0
-                JOIN Players ON Moves.ID_Player = Players.ID
-                JOIN Tokens ON Players.Login = Tokens.login
-                WHERE ID_Player = PlayerID AND token = tkn;
+        UPDATE Moves
+            JOIN Players ON Moves.ID_Player = Players.ID
+            JOIN Tokens ON Players.Login = Tokens.login
+            SET RemainingSteps = 0
+            WHERE ID_Player = PlayerID AND token = tkn;
 
         /*Убрать текущего игрока из таблицы Moves*/
         DELETE Moves FROM Moves
@@ -112,6 +126,20 @@ DiscardAndTakeCard: BEGIN
             JOIN Tokens ON Players.Login = Tokens.login
             WHERE ID_Player = PlayerID AND token = tkn;
 
-        /*Добавление следующего ходящего*/
+        /*Изменить следующего ходящего*/
+
+        /*Если это последнее место в комнате*/
+        IF Seat = (SELECT MaxSeats FROM Rooms
+                    WHERE ID = RoomID)
+        THEN
+            /*Возвращаемся к 1 месту*/
+            INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+        ELSE
+            /*Двигаемся дальше по порядку*/
+            SET Seat = Seat + 1;
+            SET NowPlayer = (SELECT ID_Player FROM Players
+                                WHERE SeatNumber = Seat AND ID_Room = RoomID);
+            INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+        END IF;
     END IF;
 END;

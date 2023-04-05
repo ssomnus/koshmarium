@@ -35,5 +35,6 @@ SignIn: BEGIN
 
     /*Вывести пользователей в онлайне*/
     SELECT login AS online_users FROM Tokens
-        WHERE TIMESTAMPDIFF (MINUTE, date, NOW()) < 5;
+        WHERE TIMESTAMPDIFF (MINUTE, date, NOW()) < 30
+        GROUP BY online_users;
 END;

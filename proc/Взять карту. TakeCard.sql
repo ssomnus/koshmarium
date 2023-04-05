@@ -9,6 +9,10 @@ TakeCard: BEGIN
     DECLARE Seat INT DEFAULT(SELECT SeatNumber FROM Players
                                 WHERE ID = PlayerID);
 
+    /*Переменная для определения ID следующего ходящего*/
+    DECLARE NowPlayer INT DEFAULT(SELECT ID FROM Players
+                                        WHERE ID_Room = RoomID AND SeatNumber = 1);
+
     /*Проверка на правильность ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 
                     WHERE token = tkn)
@@ -83,9 +87,10 @@ TakeCard: BEGIN
                 WHERE RemainingSteps = 2 AND ID_Player = PlayerID AND token = tkn)
     THEN
         /*Изменить оставшееся количество действий*/
-        UPDATE Moves SET RemainingSteps = 1
+        UPDATE Moves 
             JOIN Players ON Moves.ID_Player = Players.ID
             JOIN Tokens ON Players.Login = Tokens.login
+            SET RemainingSteps = 1
             WHERE ID_Player = PlayerID AND token = tkn;
 
     /*Это 2 действие за ход*/
@@ -119,9 +124,10 @@ TakeCard: BEGIN
         END IF;
 
         /*Изменить оставшееся количество действий*/
-        UPDATE Moves SET RemainingSteps = 0
+        UPDATE Moves
             JOIN Players ON Moves.ID_Player = Players.ID
             JOIN Tokens ON Players.Login = Tokens.login
+            SET RemainingSteps = 0
             WHERE ID_Player = PlayerID AND token = tkn;
 
         /*Убрать текущего игрока из таблицы Moves*/
@@ -137,9 +143,13 @@ TakeCard: BEGIN
                     WHERE ID = RoomID)
         THEN
             /*Возвращаемся к 1 месту*/
-
+            INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
         ELSE
             /*Двигаемся дальше по порядку*/
+            SET Seat = Seat + 1;
+            SET NowPlayer = (SELECT ID_Player FROM Players
+                                WHERE SeatNumber = Seat AND ID_Room = RoomID);
+            INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
         END IF;
     END IF;
 END;

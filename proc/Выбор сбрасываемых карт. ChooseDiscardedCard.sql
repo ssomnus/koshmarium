@@ -1,3 +1,4 @@
+DROP PROCEDURE IF EXISTS ChooseDiscardedCard;
 CREATE PROCEDURE ChooseDiscardedCard(tkn INT, PlayerID INT, CardID INT) 
 COMMENT "Выбрать карты для сброса (токен, ID игрока, ID карты)"
 ChooseDiscardedCard: BEGIN
@@ -64,4 +65,6 @@ ChooseDiscardedCard: BEGIN
                               JOIN Players ON PlayerDeck.ID_Player = Players.ID
                               JOIN Tokens ON Players.Login = Tokens.login
                               WHERE ID_Card = CardID AND ID_Player = PlayerID AND token = tkn);
+
+      SELECT "Сбросьте карты" AS System;
 END;

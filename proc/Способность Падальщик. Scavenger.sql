@@ -1,6 +1,34 @@
+DROP PROCEDURE IF EXISTS Scavenger;
 CREATE PROCEDURE Scavenger(tkn INT, PlayerID INT, RoomID INT, MonsterID INT)
-Scavenger: COMMENT "Способность Падальщик (токен, ID игрока, ID монстра)"
-BEGIN
+COMMENT "Способность Падальщик (токен, ID игрока, ID монстра)"
+Scavenger: BEGIN
+    DECLARE monst INT DEFAULT(SELECT ID_Monster FROM MonsterCards
+                                JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
+                                JOIN Players ON Monsters.ID_Player = Players.ID
+                                WHERE 3 = (SELECT COUNT(ID_CardInGame) FROM MonsterCards
+                                            GROUP BY ID_Monster)
+                                    AND ID_Room = RoomID AND AbilityIsBeingUsed = "NO");
+
+    DECLARE card INT DEFAULT 0;
+
+    /*Переменная для узнавания места*/
+    DECLARE Seat INT DEFAULT(SELECT SeatNumber FROM Players
+                                WHERE ID = PlayerID);
+
+    /*Переменная для определения ID следующего ходящего*/
+    DECLARE NowPlayer INT DEFAULT(SELECT ID FROM Players
+                                        WHERE ID_Room = RoomID AND SeatNumber = 1);
+
+    DECLARE abilCardID INT DEFAULT(SELECT NameBodyPart FROM UsedParts
+                                    JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
+                                    WHERE ID_Monster = monst AND AbilityIsBeingUsed = "YES");
+    
+    /*Определение ID карты, которая вызвала эту способность */
+    DECLARE cardAbility INT DEFAULT(SELECT ID_CardInGame FROM MonsterCards
+                                        JOIN CardsInGame ON
+                                        JOIN Cards ON
+                                        WHERE ID_Monster = monst AND AbilityIsBeingUsed = "NO" AND Ability = "Падальщик" AND );
+
     /*Проверка на правильность ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 
                     WHERE token = tkn)
@@ -54,9 +82,36 @@ BEGIN
 
         /*Все остальные способности монстра использованы*/
         UPDATE MonsterCards SET AbilityIsBeingUsed = "YES"
-            WHERE ID_Monster = /*монстр, в котором была активирована эта способность*/;
+            WHERE ID_Monster = monst;
 
-        /*Ход переходит к следующему игроку*/
+        /*Если это 2 действие за ход*/
+        IF EXISTS (SELECT * FROM Moves
+                    JOIN Players ON Moves.ID_Player = Players.ID
+                    JOIN Tokens ON Players.Login = Tokens.login
+                    WHERE RemainingSteps = 1 AND ID_Player = PlayerID AND token = tkn)
+        THEN
+            /*Убрать текущего игрока из таблицы Moves*/
+            DELETE Moves FROM Moves
+                JOIN Players ON PlayerDeck.ID_Player = Players.ID
+                JOIN Tokens ON Players.Login = Tokens.login
+                WHERE ID_Player = PlayerID AND token = tkn;
+
+            /*Изменить следующего ходящего*/
+
+            /*Если это последнее место в комнате*/
+            IF Seat = (SELECT MaxSeats FROM Rooms
+                        WHERE ID = RoomID)
+            THEN
+                /*Возвращаемся к 1 месту*/
+                INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+            ELSE
+                /*Двигаемся дальше по порядку*/
+                SET Seat = Seat + 1;
+                SET NowPlayer = (SELECT ID_Player FROM Players
+                                    WHERE SeatNumber = Seat AND ID_Room = RoomID);
+                INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+            END IF;
+        END IF;
 
         LEAVE Scavenger;
     END IF;
@@ -85,5 +140,7 @@ BEGIN
         WHERE ID = MonsterID;
 
     /*Карта становится использованной*/
-    
+    UPDATE MonsterCards
+        SET AbilityIsBeingUsed = "YES"
+        WHERE ID_CardInGame = card;
 END;

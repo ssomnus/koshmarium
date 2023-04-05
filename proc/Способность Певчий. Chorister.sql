@@ -5,6 +5,23 @@ Chorister: BEGIN
     DECLARE part ENUM("Голова", "Туловище", "Ноги") DEFAULT(SELECT NameBodyPart FROM UsedParts
                                                             WHERE ID_Card = CardID);
 
+    DECLARE monst INT DEFAULT(SELECT ID_Monster FROM MonsterCards
+                                JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
+                                JOIN Players ON Monsters.ID_Player = Players.ID
+                                WHERE 3 = (SELECT COUNT(ID_CardInGame) FROM MonsterCards
+                                            GROUP BY ID_Monster)
+                                    AND ID_Room = RoomID AND AbilityIsBeingUsed = "NO");
+
+    DECLARE card INT DEFAULT 0;
+
+    /*Переменная для узнавания места*/
+    DECLARE Seat INT DEFAULT(SELECT SeatNumber FROM Players
+                                WHERE ID = PlayerID);
+
+    /*Переменная для определения ID следующего ходящего*/
+    DECLARE NowPlayer INT DEFAULT(SELECT ID FROM Players
+                                        WHERE ID_Room = RoomID AND SeatNumber = 1);
+
     /*Проверка на правильность ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 
                     WHERE token = tkn)
@@ -58,6 +75,10 @@ Chorister: BEGIN
     /*Находятся ли эта карта в Певчей колоде*/
     IF NOT EXISTS (SELECT * FROM ChoristerDeck
                     WHERE ID_Card = CardID);
+    THEN
+        SELECT "Этой картой нельзя походить. Выберите карту из певчей колоды" AS Error;
+        LEAVE Chorister;
+    END IF;
 
     /*Принадлежит ли эта карта игроку*/
     IF NOT EXISTS (SELECT * FROM ChoristerDeck
@@ -77,9 +98,38 @@ Chorister: BEGIN
     THEN
         SELECT "Невозможно активировать способность. Следующий ход" AS Error;
 
-        /*Все способности в монстре были использованы*/
-        UPDATE Monsters SET AbilityIsBeingUsed = "YES"
-            WHERE 
+        /*Все остальные способности монстра использованы*/
+        UPDATE MonsterCards SET AbilityIsBeingUsed = "YES"
+            WHERE ID_Monster = monst;
+
+        /*Если это 2 действие за ход*/
+        IF EXISTS (SELECT * FROM Moves
+                    JOIN Players ON Moves.ID_Player = Players.ID
+                    JOIN Tokens ON Players.Login = Tokens.login
+                    WHERE RemainingSteps = 1 AND ID_Player = PlayerID AND token = tkn)
+        THEN
+            /*Убрать текущего игрока из таблицы Moves*/
+            DELETE Moves FROM Moves
+                JOIN Players ON PlayerDeck.ID_Player = Players.ID
+                JOIN Tokens ON Players.Login = Tokens.login
+                WHERE ID_Player = PlayerID AND token = tkn;
+
+            /*Изменить следующего ходящего*/
+
+            /*Если это последнее место в комнате*/
+            IF Seat = (SELECT MaxSeats FROM Rooms
+                        WHERE ID = RoomID)
+            THEN
+                /*Возвращаемся к 1 месту*/
+                INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+            ELSE
+                /*Двигаемся дальше по порядку*/
+                SET Seat = Seat + 1;
+                SET NowPlayer = (SELECT ID_Player FROM Players
+                                    WHERE SeatNumber = Seat AND ID_Room = RoomID);
+                INSERT INTO Moves(ID_Player, RemainingSteps, Deadline) SELECT NowPlayer, "2", DATE_ADD(NOW(), INTERVAL TimeToStep SECOND) FROM Rooms;
+            END IF;
+        END IF;
     END IF;
 
     /*Проверка на завершение монстра*/

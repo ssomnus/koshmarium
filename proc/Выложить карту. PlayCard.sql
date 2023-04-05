@@ -1,5 +1,6 @@
-CREATE PROCEDURE PlayCard(tkn INT, PlayerID INT, RoomID INT, CardID INT, MonsterID INT)
-COMMENT "Выложить карту на поле (токен, ID игрока, ID комнаты, ID карты, ID монстра)"
+DROP PROCEDURE IF EXISTS PlayCard;
+CREATE PROCEDURE PlayCard(tkn INT, PlayerID INT, RoomID INT, CardID INT, MonsterID INT, Part VARCHAR(10))
+COMMENT "Выложить карту на поле (токен, ID игрока, ID комнаты, ID карты, ID монстра, часть тела)"
 PlayCard: BEGIN
     /*Переменная для сравнения легиона*/
     DECLARE leg INT DEFAULT (SELECT Legion FROM Cards
@@ -10,7 +11,7 @@ PlayCard: BEGIN
                                 WHERE CardsInGame.ID = CardID AND ID_Player = PlayerID AND token = tkn);
     
     /*Переменная для нахождения ID карты за 1 действие*/
-    DECLARE IDCard INT;
+    DECLARE IDCard INT DEFAULT 0;
 
     /*Проверка на правильность ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 
@@ -41,7 +42,7 @@ PlayCard: BEGIN
                     WHERE ID = CardID)
     THEN
         SELECT "Такой карты не существует" AS Error;
-        LEAVE TakeCard;
+        LEAVE PlayCard;
     END IF;
 
     /*Проверка на правильность ввода ID монстра*/
@@ -49,7 +50,7 @@ PlayCard: BEGIN
                     WHERE ID = MonsterID)
     THEN
         SELECT "Такого монстра не существует" AS Error;
-        LEAVE TakeCard;
+        LEAVE PlayCard;
     END IF;
 
     /*Проверка на существование карты у игрока*/
@@ -87,8 +88,9 @@ PlayCard: BEGIN
                 JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
                 JOIN Players ON Monsters.ID_Player = Players.ID
                 JOIN Tokens ON Players.Login = Tokens.login
+                WHERE AbilityIsBeingUsed = "NO"
                 GROUP BY ID_Monster
-                HAVING cnt = 3 AND AbilityIsBeingUsed = "NO" AND ID_Player = PlayerID AND token = tkn)
+                HAVING cnt = 3 AND ID_Player = PlayerID AND token = tkn)
     THEN
         SELECT "Способности монстра еще не разыграны" AS Error;
         LEAVE PlayCard;
@@ -104,6 +106,50 @@ PlayCard: BEGIN
         LEAVE PlayCard;
     END IF;
 
+    /*Есть ли у карты эта часть тела*/
+    IF NOT EXISTS (SELECT * FROM BodyPartsOfCard
+                    JOIN CardsInGame ON BodyPartsOfCard.ID_Card = CardsInGame.ID_Card
+                    JOIN PlayerDeck ON CardsInGame.ID = PlayerDeck.ID_Card
+                    WHERE PlayerDeck.ID_Card = CardID AND Part = PartName)
+    THEN
+        SELECT "У этой карты нет такой части тела" AS Error;
+        LEAVE PlayCard;
+    END IF;
+
+    /*Можно ли выложить карту по части тела*/
+    IF Part = "Ноги"
+    THEN
+        IF NOT EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
+                        GROUP BY ID_Monster
+                        HAVING ID_Monster = MonsterID AND cnt = 0)
+        THEN
+            SELECT "Эту карту нельзя выложить. Попробуйте положить в другого монстра или выберите другую карту" AS Error;
+            LEAVE PlayCard;
+        END IF;
+    ELSE
+        IF Part = "Туловище"
+        THEN
+            IF NOT EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
+                            GROUP BY ID_Monster
+                            HAVING ID_Monster = MonsterID AND cnt = 1)
+            THEN
+                SELECT "Эту карту нельзя выложить. Попробуйте положить в другого монстра или выберите другую карту" AS Error;
+                LEAVE PlayCard;
+            END IF;
+        ELSE
+            IF Part = "Голова"
+            THEN
+                IF NOT EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
+                                GROUP BY ID_Monster
+                                HAVING ID_Monster = MonsterID AND cnt = 2)
+                THEN
+                    SELECT "Эту карту нельзя выложить. Попробуйте положить в другого монстра или выберите другую карту" AS Error;
+                    LEAVE PlayCard;
+                END IF;
+            END IF;
+        END IF;
+    END IF;
+
     /*Если это 1 действие за ход*/
     IF EXISTS (SELECT * FROM Moves
                 JOIN Players ON Moves.ID_Player = Players.ID
@@ -111,12 +157,16 @@ PlayCard: BEGIN
                 WHERE RemainingSteps = 2 AND ID = PlayerID AND token = tkn)
     THEN
         /*Добавить в таблицу CardsFirstStep ID этой карты*/
-        INSERT INTO CardsFirstStep(ID_Card) VALUES CardID;
+        INSERT INTO CardsFirstStep(ID_Card) VALUES (CardID);
+
+        /*Добавить карту в таблицу MonsterCards*/
+        INSERT INTO MonsterCards(ID_CardInGame, ID_Monster, AbilityIsBeingUsed) VALUES(CardID, MonsterID, "NO");
 
         /*Изменить оставшееся количество действий*/
-        UPDATE Moves SET RemainingSteps = 1
+        UPDATE Moves
             JOIN Players ON Moves.ID_Player = Players.ID
             JOIN Tokens ON Players.Login = Tokens.login
+            SET RemainingSteps = 1
             WHERE ID_Player = PlayerID AND token = tkn;
             
     /*Иначе это 2 действие за ход*/
@@ -129,7 +179,7 @@ PlayCard: BEGIN
                     WHERE ID_Player = PlayerID AND token = tkn)
         THEN
             /*Проверка, не та же самая это карта, что и в 1 действии*/
-            IF EXISTS (SELECT * FROM CardsFirstStep
+            IF NOT EXISTS (SELECT * FROM CardsFirstStep
                         JOIN PlayerDeck ON CardsFirstStep.ID_Card = PlayerDeck.ID_Card
                         JOIN Players ON PlayerDeck.ID_Player = Players.ID
                         JOIN Tokens ON Players.Login = Tokens.login
@@ -143,14 +193,17 @@ PlayCard: BEGIN
                                 WHERE ID_Player = PlayerID AND token = tkn);
 
                 /*Проверка на совпадение легиона*/
-                IF NOT EXISTS (SELECT * FROM CardsFirstStep
-                                JOIN CardsInGame ON CardsFirstStep.ID_Card = CardsInGame.ID
-                                JOIN Cards ON CardsInGame.ID_Card = Cards.ID
-                                JOIN PlayerDeck ON CardsInGame.ID = PlayerDeck.ID_Card
-                                JOIN Players ON PlayerDeck.ID_Player = Players.ID
-                                JOIN Tokens ON Players.Login = Tokens.login
-                                WHERE Legion = leg AND ID_Player = PlayerID AND token = tkn)
+                IF EXISTS (SELECT * FROM CardsFirstStep
+                            JOIN CardsInGame ON CardsFirstStep.ID_Card = CardsInGame.ID
+                            JOIN Cards ON CardsInGame.ID_Card = Cards.ID
+                            JOIN PlayerDeck ON CardsInGame.ID = PlayerDeck.ID_Card
+                            JOIN Players ON PlayerDeck.ID_Player = Players.ID
+                            JOIN Tokens ON Players.Login = Tokens.login
+                            WHERE Legion = leg AND ID_Player = PlayerID AND token = tkn)
                 THEN
+                    /*Добавить карту в таблицу MonsterCards*/
+                    INSERT INTO MonsterCards(ID_CardInGame, ID_Monster, AbilityIsBeingUsed) VALUES(CardID, MonsterID, "NO");
+
                     /*Удаляем из таблицы CardsFirstStep карту, которая там была*/
                     DELETE CardsFirstStep FROM CardsFirstStep
                         JOIN PlayerDeck ON CardsFirstStep.ID_Card = PlayerDeck.ID_Card
@@ -165,15 +218,10 @@ PlayCard: BEGIN
                         WHERE ID_Card = IDCard AND ID_Player = PlayerID AND token = tkn;
 
                     /*Изменить оставшееся количество действий*/
-                    UPDATE Moves SET RemainingSteps = 0
+                    UPDATE Moves
                         JOIN Players ON Moves.ID_Player = Players.ID
                         JOIN Tokens ON Players.Login = Tokens.login
-                        WHERE ID_Player = PlayerID AND token = tkn;
-
-                    /*Убрать текущего игрока из таблицы Moves*/
-                    DELETE Moves FROM Moves
-                        JOIN Players ON PlayerDeck.ID_Player = Players.ID
-                        JOIN Tokens ON Players.Login = Tokens.login
+                        SET RemainingSteps = 0
                         WHERE ID_Player = PlayerID AND token = tkn;
                 ELSE
                     SELECT "Легион карт не совпадает" AS Error;
@@ -186,45 +234,11 @@ PlayCard: BEGIN
         END IF;
     END IF;
 
-    /*Проверка, можно ли добавить карту (по части тела)*/
-
-
     /*Проверка на завершение монстра*/
     IF EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
                 GROUP BY ID_Monster
-                HAVING cnt = 3)
+                HAVING ID_Monster = MonsterID AND cnt = 3)
     THEN
-        /*Активация способности для головы*/
-        IF "Голова" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID AND AbilityIsBeingUsed = "NO"
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для головы" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
-
-        /*Активация способности для тела*/
-        IF "Туловище" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для туловища" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
-
-        /*Активация способности для ног*/
-        IF "Ноги" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для ног" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
+        CALL ActivationAbility();
     END IF;
 END;
