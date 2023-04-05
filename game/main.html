@@ -34,13 +34,13 @@
 
   <!-- Доступные комнаты -->
   <div class="rooms hide">
-    <a><img src="Кнопки/close.png"></a>
+    <button id="btnCmb" onclick=""><img src="buttons/comeback.png"></button>
     <!-- Кнопка для создания новой комнаты -->
     <button class="cr-room" onclick="openNewRoom()">Создать комнату</button>
 
     <!-- Параметры для новой комнаты -->
     <div class="par-new-room hide">
-      <a><img src="Кнопки/close.png"></a>
+      <button id="btnCls" onclick=""><img src="buttons/close.png"></button>
       <h3>Параметры комнаты:</h3>
       <div class="cplayer">
         <p>Количество игроков <span class="cplayer-value"></span></p>
@@ -109,18 +109,6 @@
 
           <div class="pole player-4">4</div>
       </div>
-  </div>
-
-    <!-- Игровое поле -->
-    <div class="pole">
-      <!-- Поле игрока -->
-      <div class="my-pole">
-        
-        </div>
-      </div>
-
-      <!-- Поле противника -->
-      <div class="pole-opponent"></div>
     </div>
   </div>
 </body>
