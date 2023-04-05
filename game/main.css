@@ -147,6 +147,10 @@ button:hover{
 	right: 0;
 }
 
+.card {
+	border: 3px dotted purple;
+}
+
 .deck {
 	position: absolute;
     top: 50%;
