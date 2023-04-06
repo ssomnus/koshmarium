@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS EntranceRoom;
-CREATE PROCEDURE EntranceRoom (tkn INT, RoomID INT)
+CREATE PROCEDURE EntranceRoom (tkn int(10) unsigned, RoomID INT)
 COMMENT "Войти в комнату (токен, ID комнаты)"
 EntranceRoom: BEGIN
     /*Переменная для определения места*/
@@ -51,6 +51,12 @@ EntranceRoom: BEGIN
             INSERT INTO Players(ID, Login, ID_Room, SeatNumber) VALUES(NULL, lg, RoomID, Seat);
             SET PlayerID = LAST_INSERT_ID();
 
+            INSERT INTO Monsters(ID, ID_Player) VALUES(NULL, PlayerID),
+                                                        (NULL, PlayerID),
+                                                        (NULL, PlayerID),
+                                                        (NULL, PlayerID),
+                                                        (NULL, PlayerID);
+
             /*Вывод ID игрока*/
             SELECT ID AS ID_Player FROM Players
                 WHERE ID = PlayerID;
@@ -59,18 +65,18 @@ EntranceRoom: BEGIN
             INSERT INTO PlayerDeck(ID_Card, ID_Player, CardIsDiscarded) SELECT ID_CardInGame, PlayerID, "NO" FROM CommonDeck
                 WHERE ID_Room = RoomID
                 ORDER BY ID_CardInGame
-                LIMIT 5;
+                LIMIT 5; 
 
             /*Удаление этих карт из таблицы CommonDeck*/
             DELETE CommonDeck FROM CommonDeck 
                 JOIN PlayerDeck ON CommonDeck.ID_CardInGame = PlayerDeck.ID_Card 
                 WHERE ID_CardInGame = ID_Card;
 
-            CALL StayAtRoom(tkn, PlayerID, RoomID);
+            CALL StayAtRoom(tkn, RoomID);
         END IF;
 
     /*Игрок уже добавился в комнату*/
     ELSE
-        CALL StayAtRoom(tkn, PlayerID, RoomID);
+        CALL StayAtRoom(tkn, RoomID); 
     END IF;
 END;

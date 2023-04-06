@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS ExitRoom;
-CREATE PROCEDURE ExitRoom(tkn INT, RoomID INT)
+CREATE PROCEDURE ExitRoom(tkn int(10) unsigned, RoomID INT)
 COMMENT "Выйти из комнаты (токен, ID комнаты)"
 ExitRoom: BEGIN
     /*Переменная для узнавания места*/
@@ -7,7 +7,7 @@ ExitRoom: BEGIN
                                 JOIN Tokens ON Players.Login = Tokens.login
                                 WHERE ID_Room = RoomID AND token = tkn
                                 ORDER BY date DESC 
-                                LIMIT 1)
+                                LIMIT 1);
 
     /*Проверка правильности ввода токена*/
     IF NOT EXISTS (SELECT * FROM Tokens 

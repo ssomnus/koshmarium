@@ -1,7 +1,15 @@
-CREATE PROCEDURE ActivationAbility(tkn INT, PlayerID INT, CardID INT, MonsterID INT)
+DROP PROCEDURE IF EXISTS ActivationAbility;
+CREATE PROCEDURE ActivationAbility()
 COMMENT "Активация способностей (токен, ID игрока, ID карты, ID монстра)"
 ActivationAbility: BEGIN
-    CASE Ability
+    DECLARE abl VARCHAR(20) DEFAULT(SELECT Ability FROM Cards
+                                        JOIN CardsInGame ON Cards.ID = CardsInGame.ID_Card
+                                        JOIN UsedParts ON CardsInGame.ID = UsedParts.ID_Card
+                                        JOIN MonsterCards ON CardsInGame.ID = MonsterCards.ID_Card
+                                        JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
+                                        WHERE NameBodyPart = "Ноги" AND ID_Player = PlayerID AND ID_Monster = MonsterID);
+
+    CASE abl
         WHEN "Певчий" THEN
         BEGIN
             /*Добавить карты в таблицу ChoristerDeck*/
@@ -11,9 +19,6 @@ ActivationAbility: BEGIN
             /*Удаление новых карт из таблицы CommonDeck*/
             DELETE CommonDeck FROM CommonDeck
                 JOIN ChoristerDeck ON CommonDeck.ID_CardInGame = ChoristerDeck.ID_Card
-                -- JOIN PlayerDeck ON CommonDeck.ID_CardInGame = PlayerDeck.ID_Card
-                -- JOIN Players ON PlayerDeck.ID_Player = ID
-                -- JOIN Tokens ON Players.Login = Tokens.login
                 WHERE ID_CardInGame = ChoristerDeck.ID_Card;
 
             /*Активация способности Певчий*/

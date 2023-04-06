@@ -1,19 +1,7 @@
-CREATE PROCEDURE Chorister (tkn INT, PlayerID INT, RoomID INT, CardID INT, MonsterID INT)
-COMMENT "Использовать способность Певчий (токен, ID игрока, ID комнаты, ID карты, ID монстр)"
+DROP PROCEDURE IF EXISTS Chorister;
+CREATE PROCEDURE Chorister (tkn INT, PlayerID INT, RoomID INT, CardID INT, MonsterID INT, Part VARCHAR(10))
+COMMENT "Использовать способность Певчий (токен, ID игрока, ID комнаты, ID карты, ID монстр, часть тела)"
 Chorister: BEGIN
-    /*Часть тела выбранной карты*/
-    DECLARE part ENUM("Голова", "Туловище", "Ноги") DEFAULT(SELECT NameBodyPart FROM UsedParts
-                                                            WHERE ID_Card = CardID);
-
-    DECLARE monst INT DEFAULT(SELECT ID_Monster FROM MonsterCards
-                                JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
-                                JOIN Players ON Monsters.ID_Player = Players.ID
-                                WHERE 3 = (SELECT COUNT(ID_CardInGame) FROM MonsterCards
-                                            GROUP BY ID_Monster)
-                                    AND ID_Room = RoomID AND AbilityIsBeingUsed = "NO");
-
-    DECLARE card INT DEFAULT 0;
-
     /*Переменная для узнавания места*/
     DECLARE Seat INT DEFAULT(SELECT SeatNumber FROM Players
                                 WHERE ID = PlayerID);
@@ -22,16 +10,8 @@ Chorister: BEGIN
     DECLARE NowPlayer INT DEFAULT(SELECT ID FROM Players
                                         WHERE ID_Room = RoomID AND SeatNumber = 1);
 
-    /*Проверка на правильность ввода токена*/
-    IF NOT EXISTS (SELECT * FROM Tokens 
-                    WHERE token = tkn)
-    THEN
-        SELECT "Такого токена не существует" AS Error;
-        LEAVE Chorister;
-    END IF;
-
     /*Проверка на правильность ввода ID игрока*/
-    IF NOT EXISTS (SELECT * FROM Players 
+    IF NOT EXISTS (SELECT * FROM Players
                     WHERE ID = PlayerID)
     THEN
         SELECT "Такого ID игрока не существует" AS Error;
@@ -55,10 +35,28 @@ Chorister: BEGIN
     END IF;
 
     /*Проверка на правильность ввода ID монстра*/
-    IF NOT EXISTS (SELECT * FROM Monsters
+    IF NOT EXISTS (SELECT * FROM Monsters 
                     WHERE ID = MonsterID)
     THEN
-        SELECT "Такого Монстра не существует" AS Error;
+        SELECT "Такого монстра не существует" AS Error;
+        LEAVE Chorister;
+    END IF;
+
+    /*Проверка на существование карты у игрока*/
+    IF NOT EXISTS (SELECT * FROM PlayerDeck
+                    JOIN Players ON PlayerDeck.ID_Player = Players.ID
+                    WHERE ID_Card = CardID AND ID_Player = PlayerID)
+    THEN
+        SELECT "У вас нет такой карты" AS Error;
+        LEAVE Chorister;
+    END IF;
+
+    /*Проверка на существование монстра у игрока*/
+    IF NOT EXISTS (SELECT * FROM Monsters
+                    JOIN Players ON Monsters.ID_Player = Players.ID
+                    WHERE Monsters.ID = MonsterID AND ID_Player = PlayerID)
+    THEN
+        SELECT "У тебя нет такого монстра" AS Error;
         LEAVE Chorister;
     END IF;
 
@@ -72,9 +70,9 @@ Chorister: BEGIN
         LEAVE Chorister;
     END IF;
 
-    /*Находятся ли эта карта в Певчей колоде*/
+    /*Находится ли эта карта в Певчей колоде*/
     IF NOT EXISTS (SELECT * FROM ChoristerDeck
-                    WHERE ID_Card = CardID);
+                    WHERE ID_Card = CardID)
     THEN
         SELECT "Этой картой нельзя походить. Выберите карту из певчей колоды" AS Error;
         LEAVE Chorister;
@@ -134,42 +132,10 @@ Chorister: BEGIN
 
     /*Проверка на завершение монстра*/
     IF EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
+                WHERE ID_Monster = MonsterID AND AbilityIsBeingUsed = "0"
                 GROUP BY ID_Monster
-                HAVING cnt = 3 AND 3 = 
-                                        (SELECT COUNT(AbilityIsBeingUsed) AS c_ab FROM MonsterCards GROUP BY ID_Monster HAVING AbilityIsBeingUsed = "YES")
-                        )
+                HAVING cnt = 3)
     THEN
-        /*Активация способности для головы*/
-        IF "Голова" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID AND AbilityIsBeingUsed = "NO"
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для головы" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
-
-        /*Активация способности для тела*/
-        IF "Туловище" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для туловища" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
-
-        /*Активация способности для ног*/
-        IF "Ноги" = (SELECT NameBodyPart FROM UsedParts
-                        JOIN MonsterCards ON UsedParts.ID_Card = MonsterCards.ID_CardInGame
-                        WHERE ID_Monster = MonsterID
-                        ORDER BY
-                        LIMIT 1)
-        THEN
-            SELECT "Способность для ног" AS System;
-            CALL ActivationAbility(tkn, PlayerID, CardID, MonsterID);
-        END IF;
+        CALL ActivationAbility(PlayerID, RoomID, MonsterID);
     END IF;
 END;

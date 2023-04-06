@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS Scavenger;
-CREATE PROCEDURE Scavenger(tkn INT, PlayerID INT, RoomID INT, MonsterID INT)
+CREATE PROCEDURE Scavenger(tkn int(10) unsigned, PlayerID INT, RoomID INT, MonsterID INT)
 COMMENT "Способность Падальщик (токен, ID игрока, ID монстра)"
 Scavenger: BEGIN
     DECLARE monst INT DEFAULT(SELECT ID_Monster FROM MonsterCards

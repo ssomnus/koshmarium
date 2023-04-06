@@ -1,4 +1,4 @@
-CREATE PROCEDURE Eater(tkn INT, PlayerID INT, CardID INT, MonsterID INT)
+CREATE PROCEDURE Eater(tkn int(10) unsigned, PlayerID INT, CardID INT, MonsterID INT)
 COMMENT "Способность Пожиратель (токен, ID игрока, ID карты, ID монстра)"
 Eater: BEGIN
     /*Переменная для нахождения ID комнаты*/

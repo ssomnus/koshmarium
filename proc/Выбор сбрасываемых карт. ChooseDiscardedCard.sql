@@ -3,13 +3,13 @@ CREATE PROCEDURE ChooseDiscardedCard(tkn INT, PlayerID INT, CardID INT)
 COMMENT "Выбрать карты для сброса (токен, ID игрока, ID карты)"
 ChooseDiscardedCard: BEGIN
       /*Проверка на правильность ввода токена*/
-      IF NOT EXISTS (SELECT * FROM Tokens
-                        WHERE token = tkn)
-      THEN
-            SELECT "Такого токена не существует" AS Error;
-            LEAVE ChooseDiscardedCard;
-      END IF;
-
+    IF NOT EXISTS (SELECT * FROM Tokens
+                    WHERE token = tkn)
+    THEN
+        SELECT "Такого токена не существует" AS Error;
+        LEAVE ChooseDiscardedCard;
+    END IF;
+      
       /*Проверка на правильность ввода ID игрока*/
       IF NOT EXISTS (SELECT * FROM Players
                         WHERE ID = PlayerID)
@@ -30,8 +30,7 @@ ChooseDiscardedCard: BEGIN
       IF EXISTS (SELECT * FROM MonsterCards
                   JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
                   JOIN Players ON Monsters.ID_Player = Players.ID
-                  JOIN Tokens ON Players.Login = Tokens.login
-                  WHERE ID_CardInGame = CardID AND ID_Player = PlayerID AND token = tkn)
+                  WHERE ID_CardInGame = CardID AND ID_Player = PlayerID)
       THEN
             SELECT "Эта карта находится в монстре" AS Error;
             LEAVE ChooseDiscardedCard;
@@ -40,8 +39,7 @@ ChooseDiscardedCard: BEGIN
       /*Проверка на владение карты*/
       IF NOT EXISTS (SELECT * FROM PlayerDeck
                         JOIN Players ON PlayerDeck.ID_Player = Players.ID
-                        JOIN Tokens ON Players.Login = Tokens.login
-                        WHERE ID_Card = CardID AND ID_Player = PlayerID AND token = tkn)
+                        WHERE ID_Card = CardID AND ID_Player = PlayerID)
       THEN
             SELECT "У тебя нет такой карты" AS Error;
             LEAVE ChooseDiscardedCard;
@@ -51,20 +49,21 @@ ChooseDiscardedCard: BEGIN
       IF EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
                   JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
                   JOIN Players ON Monsters.ID_Player = Players.ID
-                  JOIN Tokens ON Players.Login = Tokens.login
+                  WHERE AbilityIsBeingUsed = "NO" AND ID_Player = PlayerID
                   GROUP BY ID_Monster
-                  HAVING cnt = 3 AND AbilityIsBeingUsed = "NO" AND ID_Player = PlayerID AND token = tkn)
+                  HAVING cnt = 3)
       THEN
             SELECT "Есть неразыгранные способности" AS Error;
             LEAVE ChooseDiscardedCard;
       END IF;
 
-      /*Выбор карт для сброса*/
-      UPDATE PlayerDeck SET CardIsDiscarded = "YES"
-            WHERE ID_Card = (SELECT ID_Card FROM PlayerDeck
-                              JOIN Players ON PlayerDeck.ID_Player = Players.ID
-                              JOIN Tokens ON Players.Login = Tokens.login
-                              WHERE ID_Card = CardID AND ID_Player = PlayerID AND token = tkn);
+      START TRANSACTION;
 
-      SELECT "Сбросьте карты" AS System;
+      /*Выбор карт для сброса*/
+      UPDATE PlayerDeck SET CardIsDiscarded = "1"
+            WHERE ID_Card = CardID;
+      COMMIT;
+      
+
+      SELECT "Вы выбрали все карты для сброса? Если да, то отправьте их в сброс" AS System;
 END;

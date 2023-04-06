@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS CreateRoom;
-CREATE PROCEDURE CreateRoom (tkn INT, Seats INT, TimeStep INT)
+CREATE PROCEDURE CreateRoom (tkn int(10) unsigned, Seats INT, TimeStep INT)
 COMMENT "Создание комнаты (токен, количество мест, время на ход)"
 CreateRoom: BEGIN
 	/*Переменная для автоматически созданного ID комнаты*/
@@ -52,6 +52,13 @@ CreateRoom: BEGIN
 	/*Добавление игрока в таблицу Players*/
     INSERT INTO Players(ID, Login, ID_Room, SeatNumber) VALUES(NULL, lg, RoomID, 1);
 	SET PlayerID = LAST_INSERT_ID();
+
+	/*создаем по 5 монстров каждому игроку*/
+    INSERT INTO Monsters(ID, ID_Player) VALUES(NULL, PlayerID),
+                                                (NULL, PlayerID),
+                                                (NULL, PlayerID),
+                                                (NULL, PlayerID),
+                                                (NULL, PlayerID);
 
 	/*Вывод ID игрока*/
     SELECT ID AS ID_Player FROM Players

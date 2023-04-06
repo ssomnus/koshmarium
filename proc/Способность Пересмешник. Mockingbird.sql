@@ -1,4 +1,4 @@
-CREATE PROCEDURE Mockingbird(tkn INT, PlayerID INT, CardID INT, MonsterID INT, RoomID INT)
+CREATE PROCEDURE Mockingbird(tkn int(10) unsigned, PlayerID INT, CardID INT, MonsterID INT, RoomID INT)
 COMMENT "Способность Пересмешник (токен, ID игрока, ID монстра, )"
 Mockingbird: BEGIN
 

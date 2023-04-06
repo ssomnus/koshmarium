@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS Executioner;
-CREATE PROCEDURE Executioner(tkn INT, PlayerID INT, RoomID INT, CardID INT, MonsterID INT)
+CREATE PROCEDURE Executioner(tkn int(10) unsigned, PlayerID INT, RoomID INT, CardID INT, MonsterID INT)
 COMMENT "Способность Палач (токен, ID игрока, ID комнаты, ID карты, ID монстра)"
 Executioner: BEGIN
     /*Переменная для определения ID игрока, у которого забирается карта*/
