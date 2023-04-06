@@ -39,6 +39,9 @@ let monsters = [];
 let players = [];
 let cardChoosing = false;
 let chosenCard = -1;
+let timerQ;
+let seconds;
+let ChosenCard;
 
 
 function signin() {
@@ -340,6 +343,9 @@ function gameState(){
             console.log(responseJSON)
             let r = responseJSON.RESULTS;
 
+            seconds = 0;
+            clearInterval(timerQ);
+
             players = [];
             for (let i = 0; i < r[0].ID_Player.length; i++){
                 if (+r[0].ID_Player[i] === +player_id){
@@ -357,6 +363,16 @@ function gameState(){
             targetDiv.innerHTML = ' '
             cards = []
             monsters = []
+
+            timerQ = setInterval(function () {
+                let secs = +r[1].Deadline[0] - seconds;
+                document.getElementById('count-time').innerHTML =
+                    ` Ходит: ${r[1].Login[0]}, 
+                    осталось действий:  ${r[1].RemainingSteps[0]},
+                    осталось времени: ${(secs < 10 ? ('0' + secs): secs)}`;
+
+                seconds += 1
+            }, 1000);
 
             for (let i = 0; i < r[5].ID.length; i++){
                 cards.push([r[5].ID[i],r[5].PartName[i],r[5].ID_Card[i]])
@@ -569,6 +585,10 @@ function takeCard(){
     }).then((responseJSON) => {
         console.log(responseJSON)
     });
+}
+
+function chooseCards (){
+    let d = document.getElementsByClassName('crd')
 }
 
 function discardCards(){
