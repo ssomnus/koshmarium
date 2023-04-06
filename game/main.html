@@ -79,62 +79,89 @@
 <div class="game hide">
 
   <div class="oblast">
-    <div class="top">
-      <div class="pole player-1">
-        <button id="" onclick="">Взять карту</button>
-        <button id="" onclick="">Сбросить карты</button>
-        <button id="" class="hide" onclick="">Сбросить</button>
-        <button id="" onclick="">Выложить карту</button>
-        <button id="" class="hide" onclick="">Выложить</button>
 
-        <div class="monsters">
-          <div class="monst-top">
-            <div class="monster1">
-              <div class="card mcards1"></div>
-              <div class="card mcards2"></div>
-              <div class="card mcards3"></div>
-            </div>
-            <div class="monster2">
-              <div class="card mcards1"></div>
-              <div class="card mcards2"></div>
-              <div class="card mcards3"></div>
-            </div>
+    <!-- Всегда поле текущего  игрока -->
+    <div class="pole player-1">
+
+      <div class="btn-xod">
+
+        <!-- Для действия "взять карту из общей колоды" -->
+        <button id="give" class="cnp" onclick="">Взять карту</button>
+
+        <!-- Для выбора сбрасываемых карт -->
+        <button id="chooseDisc" class="cnp" onclick="">Сбросить карты</button>
+        <!-- Для действия "сбросить выбранные карты" -->
+        <button id="dicsard" class="cnp hide" onclick="">Сбросить</button>
+
+        <!-- Для действия "выложить карту из колоды" -->
+        <button id="put" class="cnp" onclick="">Выложить карту</button>
+
+      </div>
+
+      <div class="monsters-player">
+              
+        <!-- Монстр 1 -->
+        <div class="monst monster1">
+
+          <!-- Три поля в каждом монстре для выкладывания карт -->
+          <div class="card mcards1"></div>
+          <div class="card mcards2"></div>
+          <div class="card mcards3"></div>
+        </div>
+
+        <!-- Монстр 2 -->
+        <div class="monst monster2">
+
+          <div class="card mcards1"></div>
+          <div class="card mcards2"></div>
+          <div class="card mcards3"></div>
+        </div>
+
+                  <!-- Монстр 3 -->
+                  <div class="monst monster3">
+
+                      <div class="card mcards1"></div>
+                      <div class="card mcards2"></div>
+                      <div class="card mcards3"></div>
+                  </div>
+
+                  <!-- Монстр 4 -->
+                  <div class="monst monster4">
+                      <div class="card mcards1"></div>
+                      <div class="card mcards2"></div>
+                      <div class="card mcards3"></div>
+                  </div>
+
+                  <!-- Монстр 5 -->
+                  <div class="monst monster5">
+                      <div class="card mcards1"></div>
+                      <div class="card mcards2"></div>
+                      <div class="card mcards3"></div>
+                  </div>
+
+              </div>
+
+              <!-- Вызов колоды игрока -->
+              <button id="myCards" class="cnp" onclick="">Колода</button>
+
           </div>
 
-          <div class="monst-bottom">
-            <div class="monster3">
-              <div class="card mcards1"></div>
-              <div class="card mcards2"></div>
-              <div class="card mcards3"></div>
-            </div>
-            <div class="monster4">
-              <div class="card mcards1"></div>
-              <div class="card mcards2"></div>
-              <div class="card mcards3"></div>
-            </div>
-            <div class="monster5">
-              <div class="card mcards1"></div>
-              <div class="card mcards2"></div>
-              <div class="card mcards3"></div>
-            </div>
-          </div>
+          <!-- Поле для 2-ого игрока -->
+          <div class="pole player-2"></div>
+      
+          <!-- Поле для 3-его игрока -->
+          <div class="pole player-3"></div>
+  
+          <!-- Поле для 4-ого игрока -->
+          <div class="pole player-4"></div>
 
-          <button id="myCards" onclick="">Колода</button>
-      </div>
-      </div>
-
-      <div class="pole player-2">
-        
-      </div>
-    </div>
-
-    <div class="bottom">
-      <div class="pole player-3">3</div>
-
-      <div class="pole player-4">4</div>
-    </div>
+          
+          <!-- Колода игрока -->
+          <div id="my-cards" class=""></div>
+      
   </div>
 </div>
+
 </body>
 <script src="main.js"></script>
 </html>

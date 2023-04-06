@@ -104,57 +104,74 @@ button:hover{
 	display: none;
 }
 
-/* Прокручивание карточек горизонтально */
-.my-cards{
-	overflow-x: scroll;
-	overflow-y: hidden;
-	white-space: nowrap;
-}
-
-.top, .bottom {
+.oblast {
 	display: flex;
-   top: 0;
-   padding-top: 5px;
-	margin-right: 5px;
+  	flex-wrap: wrap;
+  	justify-content: center;
+  	align-items: center;
 }
 
 .pole {
-	height: 50%;
-  width: 50%;
-	overflow-x: hidden;
-	padding: 5px;
-}
-
-.player-1 {
+	width: 650px;
+  	height: 350px;
+  	margin: 5px;
+  	border: 1px solid #000;
 	background: black;
-	left: 0;
+	text-align: center;
 }
 
-.player-2 {
-	background-image: none;
-	right: 0;
+.player-2, .player-3, .player-4 {
+	background-image: url(cards/none.jpg);
+	background-size: 100%;
 }
 
-.player-3 {
-	background: green;
-	bottom: 0;
-	left: 0;
+.btn-xod {
+	display: flex;
+	flex-direction: row;
+	margin-top: 20px;
 }
 
-.player-4 {
-	background: blue;
-	bottom: 0;
-	right: 0;
+.cnp {
+	width: 100px;
+	height: 30px;
+	margin: auto;
+	justify-content: center;
+	color: #fff;
+	background: #573b8a;
+	cursor: pointer;
+	font-size: 10px;
+	font-weight: normal;
+	border: none;
+	border-radius: 5px;
+}
+
+.monsters-player {
+	display: flex;
+  	flex-wrap: wrap;
+  	justify-content: center;
+  	align-items: center;
+	margin-top: 30px;
+}
+
+.monst {
+	width: 80px;
+	height: 180px;
+	margin: 7px;
+	display: flex;
+	flex-direction: column;
 }
 
 .card {
-	border: 3px dotted purple;
+	width: 80px;
+	height: 60px;
+	border: 1px dotted purple;
+	margin: 3px;
 }
 
-.deck {
-	position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+#myCards {
+	margin-top: 25px;
 }
+
+/* #my-cards {
+
+} */
