@@ -20,6 +20,7 @@ let inWaitingRoom = false;
 let showRoom = true;
 let token;
 let room_id;
+let player_id;
 
 function signin() {
     const url = "https://sql.lavro.ru/call.php?";
@@ -199,8 +200,24 @@ function enterRoom() {
             return error("Ошибка");
         }
     }).then((responseJSON) => {
-        displayWaitingRoom()
-        console.log(responseJSON)
+
+        if (responseJSON.RESULTS[6]){
+            document.getElementsByClassName('par-new-room')[0].classList.add('hide');
+            document.getElementsByClassName('all-rooms')[0].classList.add('hide');
+            document.getElementsByClassName('my-rooms')[0].classList.add('hide');
+            document.getElementsByClassName('cr-room')[0].classList.add('hide');
+            document.getElementById('btnCmb').classList.add('hide');
+            document.getElementById('connectRoom').classList.add('hide');
+            document.getElementsByClassName('stayAtroom')[0].classList.add('hide')
+            player_id = responseJSON.RESULTS[0].ID_Player[0];
+            showRoom = false;
+            inWaitingRoom = false;
+            document.getElementsByClassName('game')[0].classList.remove('hide')
+
+            gameState()
+        } else {
+            displayWaitingRoom()
+        }
     });
 }
 
@@ -239,8 +256,11 @@ function roomState(){
                     return show_error('ошибка сети)');
                 }
             }).then((responseJSON) => {
+                console.log('imhere')
+                console.log(responseJSON)
                 let r = responseJSON.RESULTS;
                 console.log(r)
+                console.log(r.length)
                 if (r[0].Error){
                     alert(r[0].Error)
                     clearInterval(interval)
@@ -248,6 +268,15 @@ function roomState(){
                     backToRooms()
                 }
                 else {
+                    if (r.length >2) {
+                        player_id = responseJSON.RESULTS[0].ID_Player[0];
+                        showRoom = false;
+                        inWaitingRoom = false;
+                        clearInterval(interval)
+                        document.getElementsByClassName('stayAtroom')[0].classList.add('hide')
+                        document.getElementsByClassName('game')[0].classList.remove('hide')
+                        gameState()
+                    }
                     let v = document.getElementsByClassName('listPlayers')[0];
                     v.innerHTML = ' ';
                     for (let i = 0; i < r[0].ID_Player.length; i++){
@@ -260,5 +289,32 @@ function roomState(){
             });
         }
         else clearInterval(interval);
+    }, 3000);
+}
+
+function gameState(){
+    const url = "https://sql.lavro.ru/call.php?";
+    let fd = new FormData();
+    fd.append('pname', 'GameState');
+    fd.append('db', '265117');
+    fd.append('p1', player_id);
+    fd.append('p2', room_id);
+    fd.append('format', 'columns_compact');
+    const interval = setInterval(function() {
+        fetch(url, {
+            method: "POST",
+            body: fd
+        }).then((response) => {
+            if (response.ok){
+                return response.json()
+            }
+            else {
+                return show_error('ошибка сети)');
+            }
+        }).then((responseJSON) => {
+
+            console.log(responseJSON)
+        });
+
     }, 3000);
 }
