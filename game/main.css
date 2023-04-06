@@ -120,11 +120,6 @@ button:hover{
 	text-align: center;
 }
 
-.player-2, .player-3, .player-4 {
-	background-image: url(cards/none.jpg);
-	background-size: 100%;
-}
-
 .btn-xod {
 	display: flex;
 	flex-direction: row;
@@ -172,6 +167,6 @@ button:hover{
 	margin-top: 25px;
 }
 
-/* #my-cards {
-
-} */
+.coloda-player {
+	background-color: #fff;
+}
