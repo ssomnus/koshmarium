@@ -167,6 +167,21 @@ button:hover{
 	margin-top: 25px;
 }
 
-.coloda-player {
+.coloda {
 	background-color: #fff;
+	min-width: 80%;
+	min-height: 150px;
+	display: flex;
+	overflow-x: auto;
+}
+
+.crd {
+	background-color: rgb(80, 88, 97);
+	min-width: 200px;
+	margin: 5px;
+}
+
+#count-time {
+	left: 20px;
+	color: white;
 }

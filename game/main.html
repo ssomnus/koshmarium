@@ -85,11 +85,13 @@
 
       <div class="btn-xod">
 
+        <span id="count-time">123</span>
+
         <!-- Для действия "взять карту из общей колоды" -->
         <button id="give" class="cnp" onclick="takeCard()">Взять карту</button>
 
         <!-- Для выбора сбрасываемых карт -->
-        <button id="chooseDisc" class="cnp" onclick="">Сбросить карты</button>
+        <button id="chooseDisc" class="cnp" onclick="discardCards()">Сбросить карты</button>
         <!-- Для действия "сбросить выбранные карты" -->
         <button id="dicsard" class="cnp hide" onclick="">Сбросить</button>
 
@@ -99,43 +101,43 @@
       </div>
 
       <div class="monsters-player">
-              
+
         <!-- Монстр 1 -->
         <div class="monst monster1">
 
           <!-- Три поля в каждом монстре для выкладывания карт -->
-          <div class="card mcards01"></div>
-          <div class="card mcards02"></div>
-          <div class="card mcards03"></div>
+          <div class="card pl1 mcards01"></div>
+          <div class="card pl1 mcards02"></div>
+          <div class="card pl1 mcards03"></div>
         </div>
 
         <!-- Монстр 2 -->
         <div class="monst monster2">
 
-          <div class="card mcards11"></div>
-          <div class="card mcards12"></div>
-          <div class="card mcards13"></div>
+          <div class="card pl1 mcards11"></div>
+          <div class="card pl1 mcards12"></div>
+          <div class="card pl1 mcards13"></div>
         </div>
 
         <!-- Монстр 3 -->
         <div class="monst monster3">
-          <div class="card mcards21"></div>
-          <div class="card mcards22"></div>
-          <div class="card mcards23"></div>
+          <div class="card pl1 mcards21"></div>
+          <div class="card pl1 mcards22"></div>
+          <div class="card pl1 mcards23"></div>
         </div>
 
         <!-- Монстр 4 -->
         <div class="monst monster4">
-          <div class="card mcards31"></div>
-          <div class="card mcards32"></div>
-          <div class="card mcards33"></div>
+          <div class="card pl1 mcards31"></div>
+          <div class="card pl1 mcards32"></div>
+          <div class="card pl1 mcards33"></div>
         </div>
 
         <!-- Монстр 5 -->
         <div class="monst monster5">
-          <div class="card mcards41"></div>
-          <div class="card mcards42"></div>
-          <div class="card mcards43"></div>
+          <div class="card pl1 mcards41"></div>
+          <div class="card pl1 mcards42"></div>
+          <div class="card pl1 mcards43"></div>
         </div>
 
       </div>
@@ -149,147 +151,148 @@
     <div class="pole player-2">
 
       <div class="monsters-player">
-              
+
         <!-- Монстр 1 -->
         <div class="monst monster1">
 
           <!-- Три поля в каждом монстре для выкладывания карт -->
-          <div class="card mcards01"></div>
-          <div class="card mcards02"></div>
-          <div class="card mcards03"></div>
+          <div class="card pl2 mcards01"></div>
+          <div class="card pl2 mcards02"></div>
+          <div class="card pl2 mcards03"></div>
         </div>
 
         <!-- Монстр 2 -->
         <div class="monst monster2">
 
-          <div class="card mcards11"></div>
-          <div class="card mcards12"></div>
-          <div class="card mcards13"></div>
+          <div class="card pl2 mcards11"></div>
+          <div class="card pl2 mcards12"></div>
+          <div class="card pl2 mcards13"></div>
         </div>
 
         <!-- Монстр 3 -->
         <div class="monst monster3">
-          <div class="card mcards21"></div>
-          <div class="card mcards22"></div>
-          <div class="card mcards23"></div>
+          <div class="card pl2 mcards21"></div>
+          <div class="card pl2 mcards22"></div>
+          <div class="card pl2 mcards23"></div>
         </div>
 
         <!-- Монстр 4 -->
         <div class="monst monster4">
-          <div class="card mcards31"></div>
-          <div class="card mcards32"></div>
-          <div class="card mcards33"></div>
+          <div class="card pl2 mcards31"></div>
+          <div class="card pl2 mcards32"></div>
+          <div class="card pl2 mcards33"></div>
         </div>
 
         <!-- Монстр 5 -->
         <div class="monst monster5">
-          <div class="card mcards41"></div>
-          <div class="card mcards42"></div>
-          <div class="card mcards43"></div>
+          <div class="card pl2 mcards41"></div>
+          <div class="card pl2 mcards42"></div>
+          <div class="card pl2 mcards43"></div>
         </div>
 
       </div>
     </div>
-      
+
     <!-- Поле для 3-его игрока -->
     <div class="pole player-3">
 
       <div class="monsters-player">
-              
+
         <!-- Монстр 1 -->
         <div class="monst monster1">
 
           <!-- Три поля в каждом монстре для выкладывания карт -->
-          <div class="card mcards01"></div>
-          <div class="card mcards02"></div>
-          <div class="card mcards03"></div>
+          <div class="card pl3 mcards01"></div>
+          <div class="card pl3 mcards02"></div>
+          <div class="card pl3 mcards03"></div>
         </div>
 
         <!-- Монстр 2 -->
         <div class="monst monster2">
 
-          <div class="card mcards11"></div>
-          <div class="card mcards12"></div>
-          <div class="card mcards13"></div>
+          <div class="card pl3 mcards11"></div>
+          <div class="card pl3 mcards12"></div>
+          <div class="card pl3 mcards13"></div>
         </div>
 
         <!-- Монстр 3 -->
         <div class="monst monster3">
-          <div class="card mcards21"></div>
-          <div class="card mcards22"></div>
-          <div class="card mcards23"></div>
+          <div class="card pl3 mcards21"></div>
+          <div class="card pl3 mcards22"></div>
+          <div class="card pl3 mcards23"></div>
         </div>
 
         <!-- Монстр 4 -->
         <div class="monst monster4">
-          <div class="card mcards31"></div>
-          <div class="card mcards32"></div>
-          <div class="card mcards33"></div>
+          <div class="card pl3 mcards31"></div>
+          <div class="card pl3 mcards32"></div>
+          <div class="card pl3 mcards33"></div>
         </div>
 
         <!-- Монстр 5 -->
         <div class="monst monster5">
-          <div class="card mcards41"></div>
-          <div class="card mcards42"></div>
-          <div class="card mcards43"></div>
+          <div class="card pl3 mcards41"></div>
+          <div class="card pl3 mcards42"></div>
+          <div class="card pl3 mcards43"></div>
         </div>
 
       </div>
     </div>
-  
+
     <!-- Поле для 4-ого игрока -->
     <div class="pole player-4">
 
       <div class="monsters-player">
-              
+
         <!-- Монстр 1 -->
         <div class="monst monster1">
 
           <!-- Три поля в каждом монстре для выкладывания карт -->
-          <div class="card mcards01"></div>
-          <div class="card mcards02"></div>
-          <div class="card mcards03"></div>
+          <div class="card pl4 mcards01"></div>
+          <div class="card pl4 mcards02"></div>
+          <div class="card pl4 mcards03"></div>
         </div>
 
         <!-- Монстр 2 -->
         <div class="monst monster2">
 
-          <div class="card mcards11"></div>
-          <div class="card mcards12"></div>
-          <div class="card mcards13"></div>
+          <div class="card pl4 mcards11"></div>
+          <div class="card pl4 mcards12"></div>
+          <div class="card pl4 mcards13"></div>
         </div>
 
         <!-- Монстр 3 -->
         <div class="monst monster3">
-          <div class="card mcards21"></div>
-          <div class="card mcards22"></div>
-          <div class="card mcards23"></div>
+          <div class="card pl4 mcards21"></div>
+          <div class="card pl4 mcards22"></div>
+          <div class="card pl4 mcards23"></div>
         </div>
 
         <!-- Монстр 4 -->
         <div class="monst monster4">
-          <div class="card mcards31"></div>
-          <div class="card mcards32"></div>
-          <div class="card mcards33"></div>
+          <div class="card pl4 mcards31"></div>
+          <div class="card pl4 mcards32"></div>
+          <div class="card pl4 mcards33"></div>
         </div>
 
         <!-- Монстр 5 -->
         <div class="monst monster5">
-          <div class="card mcards41"></div>
-          <div class="card mcards42"></div>
-          <div class="card mcards43"></div>
+          <div class="card pl4 mcards41"></div>
+          <div class="card pl4 mcards42"></div>
+          <div class="card pl4 mcards43"></div>
         </div>
 
       </div>
     </div>
 
-          <!-- Колода игрока -->
-          <div id="my-cards" class="hide"></div>
-      
-  </div>
+    <!-- Колода игрока -->
+    <div id="my-cards" class="">
+      <section class="coloda">
 
-  <!-- Карты из колоды игрока -->
-  <div class="coloda-player "></div>
+      </section>
+    </div>
+
+  </div>
 </div>
 
 </body>

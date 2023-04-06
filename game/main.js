@@ -19,8 +19,8 @@ countPlayerValue.addEventListener('input',function (){
 for (let e of document.getElementsByClassName('card')){
     e.addEventListener('click',function (){
         if (cardChoosing){
-            if (!this.classList.contains('filled')){
-                chosenCard = this.classList[1].slice(-2);
+            if (!this.classList.contains('filled') && this.classList.contains('pl1')){
+                chosenCard = this.classList[2].slice(-2);
                 cardChoosing = false;
                 cardPut()
             }
@@ -36,9 +36,9 @@ let player_id;
 let login;
 let cards = [];
 let monsters = [];
+let players = [];
 let cardChoosing = false;
 let chosenCard = -1;
-
 
 
 function signin() {
@@ -148,8 +148,6 @@ function displayRooms(){
     }, 3000);
 }
 
-
-
 function openNewRoom(){
     document.getElementsByClassName('par-new-room')[0].classList.remove('hide');
     document.getElementsByClassName('all-rooms')[0].classList.add('hide');
@@ -175,7 +173,6 @@ function backToRooms(){
     showRoom = true;
     displayRooms()
 }
-
 
 function newRoom() {
     const url = "https://sql.lavro.ru/call.php?";
@@ -262,8 +259,6 @@ function displayWaitingRoom(){
     roomState()
 }
 
-
-
 function roomState(){
     const url = "https://sql.lavro.ru/call.php?";
     let fd = new FormData();
@@ -345,11 +340,24 @@ function gameState(){
             console.log(responseJSON)
             let r = responseJSON.RESULTS;
 
+            players = [];
+            for (let i = 0; i < r[0].ID_Player.length; i++){
+                if (+r[0].ID_Player[i] === +player_id){
+                    players.push([r[0].ID_Player[i],0])
+                }
+                players.push([r[0].ID_Player[i],r[0].SeatNumber[i]])
+            }
+
+            players = players.sort((a, b) => a[1] - b[1]);
+            for (let i = 0; i < r[0].ID_Player.length; i++){
+                players[i][1] = i  + 1;
+            }
 
             let targetDiv = document.getElementById('my-cards');
             targetDiv.innerHTML = ' '
             cards = []
             monsters = []
+
             for (let i = 0; i < r[5].ID.length; i++){
                 cards.push([r[5].ID[i],r[5].PartName[i],r[5].ID_Card[i]])
             }
@@ -359,28 +367,66 @@ function gameState(){
             }
 
             for (let i = 0; i < r[5].ID.length; i++){
-                targetDiv.innerHTML += '<div>' + cards[i][0] + " " + cards[i][1] + " (" + cards[i][2] + ")"+ '</div>';
+                targetDiv.innerHTML +=
+                    `<div class="crd">
+                        <p>${r[5].ID_Card[i]}</p>
+                        <img src="cards/${r[5].ID[i]}.png">
+                    </div>`;
             }
 
             for (let i = 0; i < 5; i ++){
                 for (let j = 1; j < 4; j ++){
-                    let d = document.getElementsByClassName('mcards' + i.toString() + j.toString())[0];
-                    if (!d.classList.contains('filled')){
-                        d.classList.remove('filled')
+                    let d = document.getElementsByClassName('mcards' + i.toString() + j.toString());
+                    for (let e of d){
+                        if (!e.classList.contains('filled')){
+                            e.classList.remove('filled')
+                        }
+                        e.innerHTML = '';
                     }
-                    d.innerHTML = '';
                 }
             }
 
+            let prevMonster;
+            let mId;
+            let prevField;
             for (let i = 0; i < r[3].ID_Player.length; i++){
-                let mId;
-                let bodyPart;
-                for (let j = 0; j < monsters.length; j++){
-                    if (+monsters[j] === +r[3].ID_Monster[i]){
+                let fieldNumber;
 
-                        mId = i;
+                for (let e of players){
+                    if (+e[0] === +r[3].ID_Player[i]){
+                        fieldNumber = e[1];
+                            if (prevField !== fieldNumber && prevField !== undefined){
+                            mId -= `1`;
+                        }
+                        prevField = fieldNumber;
+                        break;
                     }
                 }
+
+                let bodyPart;
+
+
+                if (+r[3].ID_Player === +player_id){
+                    for (let j = 0; j < monsters.length; j++){
+                        if (+monsters[j] === +r[3].ID_Monster[i]){
+                            mId = j;
+                        }
+                    }
+                }
+                else {
+                    if (prevMonster === undefined){
+                        mId = 0;
+                    } else {
+                        if (+prevMonster !== +r[3].ID_Monster[i]){
+                            mId += 1
+                        }
+                    }
+                    prevMonster = +r[3].ID_Monster[i];
+                }
+
+
+                if (mId === undefined) continue;
+
                 switch (r[3].NameBodyPart[i]) {
                     case 'Голова':
                         bodyPart = 1
@@ -392,14 +438,17 @@ function gameState(){
                         bodyPart = 3
                         break;
                 }
-                let d = document.getElementsByClassName('mcards' + mId.toString() + bodyPart.toString())[0];
-                d.classList.add('filled')
-                d.innerHTML +=
-                    "<div style='color: white'>" +
-                    r[3].NameBodyPart[i] + " " +
-                    r[3].Legion[i] + " " +
-                    r[3].Ability[i] +
-                    "</div>"
+
+                let d = document.getElementsByClassName('mcards' + mId.toString() + bodyPart.toString());
+                let divv = d[0];
+                for (let e of d){
+                    if (e.classList.contains(`pl${fieldNumber}`)){
+                        divv = e;
+                    }
+                }
+                divv.classList.add('filled')
+                divv.innerHTML +=
+                    `<img src="${"cards/" + r[3].ID[i] + '.png'}" style="width: 80px; height: 52.400px">`
 
             }
         });
@@ -407,7 +456,7 @@ function gameState(){
 }
 
 function openCards(){
-    let targetDiv = document.getElementById('my-cards');
+    let targetDiv = document.getElementsByClassName('coloda')[0];
     targetDiv.classList.contains('hide') ? targetDiv.classList.remove('hide') : targetDiv.classList.add('hide')
 }
 
@@ -415,7 +464,7 @@ function PutCard(){
     if (!cardChoosing && chosenCard === -1){
         cardChoosing = true;
         for (let q of document.getElementsByClassName('card')){
-            if (!q.classList.contains('filled'))
+                if (!q.classList.contains('filled') && q.classList.contains('pl1'))
                 q.style.border = '2px solid green';
         }
     } else if (cardChoosing && chosenCard === -1){
@@ -430,7 +479,6 @@ function cardPut(){
     for (let q of document.getElementsByClassName('card')){
         q.style.border = '1px dotted purple';
     }
-    console.log(chosenCard);
     PlayCard()
 }
 
@@ -450,6 +498,7 @@ function PlayCard(){
 
     let monster = chosenCard.charAt(0);
     let bodyPart = chosenCard.charAt(1);
+
     switch (bodyPart) {
         case '1':
             bodyPart = 'Голова'
@@ -472,6 +521,15 @@ function PlayCard(){
     fd.append('p4', cardNumber);
     fd.append('p5', monsters[monster]);
     fd.append('p6', bodyPart);
+
+    console.log(
+        token + " " +
+        player_id + " " +
+        room_id + " " +
+        cardNumber + " " +
+        monsters[monster] + " " +
+        bodyPart + " "
+    )
 
     fetch(url, {
         method: "POST",
@@ -498,6 +556,56 @@ function takeCard(){
     fd.append("p2", player_id);
     fd.append("p3", room_id);
 
+    fetch(url, {
+        method: "POST",
+        body: fd
+    }).then((response) => {
+        if(response.ok){
+            return response.json()
+        }
+        else{
+            return error("Ошибка");
+        }
+    }).then((responseJSON) => {
+        console.log(responseJSON)
+    });
+}
+
+function discardCards(){
+    let cardNumber = prompt("Пожалуйста, введите айди карт которые вы хотите сбросить через пробел", `${cards[0][2]}`);
+    if (cardNumber === ' ') return;
+    cardNumber = cardNumber.split(' ');
+
+    for (let e of cardNumber){
+        const url = "https://sql.lavro.ru/call.php?";
+        let fd = new FormData();
+        fd.append("pname", "ChooseDiscardedCard");
+        fd.append("db", "265117");
+        fd.append("p1", token);
+        fd.append("p2", player_id);
+        fd.append("p3", e);
+        fetch(url, {
+            method: "POST",
+            body: fd
+        }).then((response) => {
+            if(response.ok){
+                return response.json()
+            }
+            else{
+                return error("Ошибка");
+            }
+        }).then((responseJSON) => {
+            console.log(responseJSON)
+        });
+    }
+
+    const url = "https://sql.lavro.ru/call.php?";
+    let fd = new FormData();
+    fd.append("pname", "DiscardAndTakeCard");
+    fd.append("db", "265117");
+    fd.append("p1", token);
+    fd.append("p2", player_id);
+    fd.append("p3", room_id);
     fetch(url, {
         method: "POST",
         body: fd
