@@ -347,6 +347,11 @@ function gameState(){
         }).then((responseJSON) => {
             console.log(responseJSON)
             let r = responseJSON.RESULTS;
+            
+            if (r[0].Error){
+            alert(r[0].Error[0])
+            return;
+        }
 
             seconds = 0;
             clearInterval(timerQ);
