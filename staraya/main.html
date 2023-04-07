@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кошмариум. Вход</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" href="main.css">
+
+</head>
+<body>
+<!-- Вход и регистрация -->
+<div class="main">
+  <input type="checkbox" id="chk" aria-hidden="true">
+  <!-- Вход -->
+  <div class="signin">
+    <label for="chk" aria-hidden="true">Вход</label>
+    <input id="log1" type="text" name="txt" placeholder="Логин" required>
+    <input id="pas1" type="password" name="pswd" placeholder="Пароль" required>
+    <button id="signBut" onclick="signin()">Войти</button>
+  </div>
+
+  <!-- Регистрация -->
+  <div class="registration">
+    <label for="chk" aria-hidden="true">Регистрация</label>
+    <input id="log2" type="text" name="txt" placeholder="Логин" required>
+    <input id="pas2" type="password" name="pswd" placeholder="Пароль" required>
+    <button id="regBut" onclick="register()">Зарегистрироваться</button>
+  </div>
+</div>
+
+<!-- Доступные комнаты -->
+<div class="rooms hide">
+  <button id="btnCmb" onclick="backToReg()"><img src="buttons/comeback.png"></button>
+  <!-- Кнопка для создания новой комнаты -->
+  <button class="cr-room" onclick="openNewRoom()">Создать комнату</button>
+
+
+  <!-- Параметры для новой комнаты -->
+  <div class="par-new-room hide">
+    <button id="btnCls" onclick="backToRooms()"><img src="buttons/close.png"></button>
+    <h3>Параметры комнаты:</h3>
+    <div class="cplayer">
+      <p>Количество игроков <span class="cplayer-value"></span></p>
+      <input type="range" id="count-player" min="2" max="4" step="1" value="2">
+    </div>
+    <div class="tmove">
+      <p>Время на ход <span class="tmove-value"></span> сек</p>
+      <input type="range" id="time-move" min="60" max="1800" step="30" value="60">
+    </div>
+    <button id="createGameBtn" onclick="newRoom()">Создать</button>
+  </div>
+
+  <!-- Все свободные комнаты -->
+  <div class="all-rooms">
+
+  </div>
+  <div id="connectRoom">
+    <input type="text" id="roomIdInput">
+    <button class="cr-room" onclick="enterRoom()">Подкючиться к комнате</button>
+  </div>
+
+  <!-- Комнаты игрока -->
+  <div class="my-rooms"></div>
+
+  <div class="stayAtroom hide">
+    <h2>Ожидайте подключения всех игроков</h2>
+    <div class="listPlayers">
+
+    </div>
+  </div>
+</div>
+
+<!-- Игра -->
+<div class="game hide">
+
+  <span id="count-time">00:00</span>
+  <div class="oblast">
+
+    <!-- Всегда поле текущего  игрока -->
+    <div class="pole player-1">
+
+      <div class="btn-xod">
+
+        <!-- Для действия "взять карту из общей колоды" -->
+        <button id="give" class="cnp" onclick="takeCard()">Взять карту</button>
+
+        <!-- Для выбора сбрасываемых карт -->
+        <button id="chooseDisc" class="cnp" onclick="discardCards()">Сбросить карты</button>
+        <!-- Для действия "сбросить выбранные карты" -->
+        <button id="discard" class="cnp hide" onclick="cancel()">Отменить выбор</button>
+
+        <!-- Для действия "выложить карту из колоды" -->
+        <button id="put" class="cnp" onclick="PutCard()">Выложить карту</button>
+
+      </div>
+
+      <div class="monsters-player">
+
+        <!-- Монстр 1 -->
+        <div class="monst monster1">
+
+          <!-- Три поля в каждом монстре для выкладывания карт -->
+          <div class="card pl1 mcards01"></div>
+          <div class="card pl1 mcards02"></div>
+          <div class="card pl1 mcards03"></div>
+        </div>
+
+        <!-- Монстр 2 -->
+        <div class="monst monster2">
+
+          <div class="card pl1 mcards11"></div>
+          <div class="card pl1 mcards12"></div>
+          <div class="card pl1 mcards13"></div>
+        </div>
+
+        <!-- Монстр 3 -->
+        <div class="monst monster3">
+          <div class="card pl1 mcards21"></div>
+          <div class="card pl1 mcards22"></div>
+          <div class="card pl1 mcards23"></div>
+        </div>
+
+        <!-- Монстр 4 -->
+        <div class="monst monster4">
+          <div class="card pl1 mcards31"></div>
+          <div class="card pl1 mcards32"></div>
+          <div class="card pl1 mcards33"></div>
+        </div>
+
+        <!-- Монстр 5 -->
+        <div class="monst monster5">
+          <div class="card pl1 mcards41"></div>
+          <div class="card pl1 mcards42"></div>
+          <div class="card pl1 mcards43"></div>
+        </div>
+
+      </div>
+
+      <!-- Вызов колоды игрока -->
+      <div class="btn-coloda">
+        <button id="myCards" class="cnp" onclick="openCards()">Колода</button>
+        <button id="closeCards" class="cnp hide"><img src="buttons/close.png"></button>
+      </div>
+
+      <!-- КОЛОДА ИГРОКА ДОЛЖНА БЫТЬ ЗДЕСЬ! -->
+      <div id="my-cards" class="modal-container hide">
+          <div class="coloda">
+
+          </div>
+    </div>
+
+    </div>
+
+    <!-- Колода игрока
+    <div id="my-cards" class="">
+      <section class="coloda"></section>
+    </div> -->
+
+    <!-- Поле для 2-ого игрока -->
+    <div class="pole player-2">
+
+      <div class="monsters-player">
+
+        <!-- Монстр 1 -->
+        <div class="monst monster1">
+
+          <!-- Три поля в каждом монстре для выкладывания карт -->
+          <div class="card pl2 mcards01"></div>
+          <div class="card pl2 mcards02"></div>
+          <div class="card pl2 mcards03"></div>
+        </div>
+
+        <!-- Монстр 2 -->
+        <div class="monst monster2">
+
+          <div class="card pl2 mcards11"></div>
+          <div class="card pl2 mcards12"></div>
+          <div class="card pl2 mcards13"></div>
+        </div>
+
+        <!-- Монстр 3 -->
+        <div class="monst monster3">
+          <div class="card pl2 mcards21"></div>
+          <div class="card pl2 mcards22"></div>
+          <div class="card pl2 mcards23"></div>
+        </div>
+
+        <!-- Монстр 4 -->
+        <div class="monst monster4">
+          <div class="card pl2 mcards31"></div>
+          <div class="card pl2 mcards32"></div>
+          <div class="card pl2 mcards33"></div>
+        </div>
+
+        <!-- Монстр 5 -->
+        <div class="monst monster5">
+          <div class="card pl2 mcards41"></div>
+          <div class="card pl2 mcards42"></div>
+          <div class="card pl2 mcards43"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Поле для 3-его игрока -->
+    <div class="pole player-3">
+
+      <div class="monsters-player">
+
+        <!-- Монстр 1 -->
+        <div class="monst monster1">
+
+          <!-- Три поля в каждом монстре для выкладывания карт -->
+          <div class="card pl3 mcards01"></div>
+          <div class="card pl3 mcards02"></div>
+          <div class="card pl3 mcards03"></div>
+        </div>
+
+        <!-- Монстр 2 -->
+        <div class="monst monster2">
+
+          <div class="card pl3 mcards11"></div>
+          <div class="card pl3 mcards12"></div>
+          <div class="card pl3 mcards13"></div>
+        </div>
+
+        <!-- Монстр 3 -->
+        <div class="monst monster3">
+          <div class="card pl3 mcards21"></div>
+          <div class="card pl3 mcards22"></div>
+          <div class="card pl3 mcards23"></div>
+        </div>
+
+        <!-- Монстр 4 -->
+        <div class="monst monster4">
+          <div class="card pl3 mcards31"></div>
+          <div class="card pl3 mcards32"></div>
+          <div class="card pl3 mcards33"></div>
+        </div>
+
+        <!-- Монстр 5 -->
+        <div class="monst monster5">
+          <div class="card pl3 mcards41"></div>
+          <div class="card pl3 mcards42"></div>
+          <div class="card pl3 mcards43"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Поле для 4-ого игрока -->
+    <div class="pole player-4">
+
+      <div class="monsters-player">
+
+        <!-- Монстр 1 -->
+        <div class="monst monster1">
+
+          <!-- Три поля в каждом монстре для выкладывания карт -->
+          <div class="card pl4 mcards01"></div>
+          <div class="card pl4 mcards02"></div>
+          <div class="card pl4 mcards03"></div>
+        </div>
+
+        <!-- Монстр 2 -->
+        <div class="monst monster2">
+
+          <div class="card pl4 mcards11"></div>
+          <div class="card pl4 mcards12"></div>
+          <div class="card pl4 mcards13"></div>
+        </div>
+
+        <!-- Монстр 3 -->
+        <div class="monst monster3">
+          <div class="card pl4 mcards21"></div>
+          <div class="card pl4 mcards22"></div>
+          <div class="card pl4 mcards23"></div>
+        </div>
+
+        <!-- Монстр 4 -->
+        <div class="monst monster4">
+          <div class="card pl4 mcards31"></div>
+          <div class="card pl4 mcards32"></div>
+          <div class="card pl4 mcards33"></div>
+        </div>
+
+        <!-- Монстр 5 -->
+        <div class="monst monster5">
+          <div class="card pl4 mcards41"></div>
+          <div class="card pl4 mcards42"></div>
+          <div class="card pl4 mcards43"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Колода игрока
+    <div id="my-cards" class="">
+      <section class="coloda"></section>
+    </div> -->
+
+  </div>
+</div>
+
+</body>
+<script src="main.js"></script>
+</html>
