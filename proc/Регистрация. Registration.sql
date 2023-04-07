@@ -16,6 +16,8 @@ Registration: BEGIN
         LEAVE Registration;
     END IF;
 
+START TRANSACTION;
+
     /*Добавляем вводимые данные в таблицу Users*/
     INSERT IGNORE INTO Users(Login, Password) VALUES(lg, pw);
 
@@ -28,4 +30,7 @@ Registration: BEGIN
 
     /*Вход в игру*/
     CALL SignIn(lg, pw);
+
+COMMIT;
+
 END;

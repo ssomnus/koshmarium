@@ -34,6 +34,8 @@ ExitRoom: BEGIN
         LEAVE ExitRoom;
     END IF;
 
+START TRANSACTION;    
+
     /*Удалить игрока из таблицы Players*/
     DELETE Players FROM Players
         JOIN Tokens ON Players.Login = Tokens.login
@@ -51,4 +53,7 @@ ExitRoom: BEGIN
         DELETE FROM Rooms 
             WHERE ID = RoomID;
     END IF;
+
+COMMIT;
+
 END;

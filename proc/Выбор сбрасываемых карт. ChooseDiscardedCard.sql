@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS ChooseDiscardedCard;
-CREATE PROCEDURE ChooseDiscardedCard(tkn INT, PlayerID INT, CardID INT) 
+CREATE PROCEDURE ChooseDiscardedCard(tkn int(10) unsigned, PlayerID INT, CardID INT) 
 COMMENT "Выбрать карты для сброса (токен, ID игрока, ID карты)"
 ChooseDiscardedCard: BEGIN
       /*Проверка на правильность ввода токена*/
@@ -45,25 +45,12 @@ ChooseDiscardedCard: BEGIN
             LEAVE ChooseDiscardedCard;
       END IF;
 
-      /*Нет неразыгранных способностей монстра*/
-      IF EXISTS (SELECT COUNT(ID_CardInGame) AS cnt FROM MonsterCards
-                  JOIN Monsters ON MonsterCards.ID_Monster = Monsters.ID
-                  JOIN Players ON Monsters.ID_Player = Players.ID
-                  WHERE AbilityIsBeingUsed = "NO" AND ID_Player = PlayerID
-                  GROUP BY ID_Monster
-                  HAVING cnt = 3)
-      THEN
-            SELECT "Есть неразыгранные способности" AS Error;
-            LEAVE ChooseDiscardedCard;
-      END IF;
-
-      START TRANSACTION;
+START TRANSACTION;
 
       /*Выбор карт для сброса*/
       UPDATE PlayerDeck SET CardIsDiscarded = "1"
             WHERE ID_Card = CardID;
-      COMMIT;
-      
 
+COMMIT;
       SELECT "Вы выбрали все карты для сброса? Если да, то отправьте их в сброс" AS System;
 END;

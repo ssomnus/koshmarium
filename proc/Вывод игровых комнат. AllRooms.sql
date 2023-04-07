@@ -1,5 +1,5 @@
 DROP PROCEDURE IF EXISTS AllRooms;
-CREATE PROCEDURE AllRooms ()
+CREATE PROCEDURE AllRooms (tkn int(10) unsigned)
 COMMENT "Вывести доступные игровые комнаты"
 AllRooms: BEGIN
     /*Если в комнате есть свободные места*/
@@ -17,4 +17,10 @@ AllRooms: BEGIN
         SELECT "Свободных комнат нет" AS Error;
         LEAVE AllRooms;
     END IF;
+
+    /*Вывести список всех комнат, в которых уже сидит данный игрок*/
+    SELECT ID_Room FROM Players 
+            JOIN Tokens ON Players.Login = Tokens.login /*Для поиска по токену*/
+            WHERE token = tkn
+            ORDER BY ID_Room;
 END;

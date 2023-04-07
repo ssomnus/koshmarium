@@ -32,6 +32,8 @@ EntranceRoom: BEGIN
         LEAVE EntranceRoom;
     END IF;
 
+    START TRANSACTION;
+    
     /*Если это первый вход в комнату*/
     IF NOT EXISTS (SELECT * FROM Players
                     WHERE ID_Room = RoomID AND Login = lg)
@@ -58,7 +60,7 @@ EntranceRoom: BEGIN
                                                         (NULL, PlayerID);
 
             /*Вывод ID игрока*/
-            SELECT ID AS ID_Player FROM Players
+            SELECT ID AS ID_Player, Login FROM Players
                 WHERE ID = PlayerID;
 
             /*Добавление 5 стартовых карт игроку в таблицу PlayerDeck*/
@@ -79,4 +81,7 @@ EntranceRoom: BEGIN
     ELSE
         CALL StayAtRoom(tkn, RoomID); 
     END IF;
+
+COMMIT;
+
 END;

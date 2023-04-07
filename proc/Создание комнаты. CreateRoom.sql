@@ -28,6 +28,8 @@ CreateRoom: BEGIN
 		LEAVE CreateRoom;
 	END IF;
 
+START TRANSACTION;	
+
 	/*Добавить вводимые данные в таблицу Rooms*/
 	INSERT IGNORE INTO Rooms(ID, MaxSeats, TimeToStep) VALUES(NULL, Seats, TimeStep);
 
@@ -74,4 +76,7 @@ CreateRoom: BEGIN
     DELETE CommonDeck FROM CommonDeck 
         JOIN PlayerDeck ON CommonDeck.ID_CardInGame = PlayerDeck.ID_Card 
         WHERE ID_CardInGame = ID_Card;
+
+COMMIT;
+
 END;

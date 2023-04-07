@@ -18,11 +18,15 @@ SignIn: BEGIN
         LEAVE SignIn;
     END IF;
 
+START TRANSACTION;
+
     /*Удаление токенов, время неактивности которых > 30 минут*/
     DELETE FROM Tokens WHERE TIMESTAMPDIFF (MINUTE, date, NOW()) > 30;
 
     /*Добавление данных в таблицу Tokens*/
     INSERT IGNORE INTO Tokens(token, login, date) VALUES(RAND()*256*256*256*256, lg, NOW());
+
+COMMIT;
 
     /*Вывести токен текущего игрока*/
     SELECT token AS player_token FROM Tokens
@@ -31,10 +35,10 @@ SignIn: BEGIN
         LIMIT 1;
 
     /*Информация о комнатах*/
-    CALL AllRooms();
+    CALL AllRooms(tkn);
 
     /*Вывести пользователей в онлайне*/
     SELECT login AS online_users FROM Tokens
-        WHERE TIMESTAMPDIFF (MINUTE, date, NOW()) < 30
+        WHERE TIMESTAMPDIFF (MINUTE, date, NOW()) < 60
         GROUP BY online_users;
 END;
