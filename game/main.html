@@ -86,17 +86,15 @@
       <div class="btn-xod">
 
         <!-- Для действия "взять карту из общей колоды" -->
-        <button id="give" class="cnp hide" onclick="takeCard()">Взять карту</button>
+        <button id="give" class="cnp" onclick="takeCard()">Взять карту</button>
 
         <!-- Для выбора сбрасываемых карт -->
-        <button id="chooseDisc" class="cnp hide" onclick="discardCards()">Сбросить карты</button>
+        <button id="chooseDisc" class="cnp" onclick="discardCards()">Сбросить карты</button>
         <!-- Для действия "сбросить выбранные карты" -->
         <button id="discard" class="cnp hide" onclick="cancel()">Отменить выбор</button>
 
         <!-- Для действия "выложить карту из колоды" -->
-        <button id="put" class="cnp hide" onclick="PutCard()">Выложить карту</button>
-        <!-- Для действия "сбросить выбранные карты" -->
-        <button id="discard2" class="cnp hide" onclick="cancel2()">Отменить выбор</button>
+        <button id="put" class="cnp" onclick="PutCard()">Выложить карту</button>
 
       </div>
 
@@ -150,7 +148,9 @@
 
       <!-- КОЛОДА ИГРОКА ДОЛЖНА БЫТЬ ЗДЕСЬ! -->
       <div id="my-cards" class="modal-container hide">
+          <div class="coloda">
 
+          </div>
     </div>
 
     </div>

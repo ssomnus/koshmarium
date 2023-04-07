@@ -202,6 +202,10 @@ function newRoom() {
             return ("Ошибка");
         }
     }).then((responseJSON) => {
+        if (responseJSON.RESULTS[0].Error){
+            alert(responseJSON.RESULTS[0].Error)
+            return;
+        }
         console.log(responseJSON)
         room_id = responseJSON.RESULTS[0].ID[0];
         displayWaitingRoom()
@@ -229,6 +233,10 @@ function enterRoom() {
         }
     }).then((responseJSON) => {
         console.log(responseJSON)
+        if (responseJSON.RESULTS[0].Error){
+            alert(responseJSON.RESULTS[0].Error)
+            return;
+        }
         if (responseJSON.RESULTS[6]){
             document.getElementsByClassName('par-new-room')[0].classList.add('hide');
             document.getElementsByClassName('all-rooms')[0].classList.add('hide');
@@ -288,8 +296,12 @@ function roomState(){
                     return show_error('ошибка сети)');
                 }
             }).then((responseJSON) => {
-                console.log('imhere')
                 console.log(responseJSON)
+
+                if (responseJSON.RESULTS[0].Error){
+                    alert(responseJSON.RESULTS[0].Error)
+                    return;
+                }
                 let r = responseJSON.RESULTS;
                 console.log(r)
                 console.log(r.length)
@@ -346,6 +358,13 @@ function gameState(){
             }
         }).then((responseJSON) => {
             console.log(responseJSON)
+
+            for (let e of responseJSON.RESULTS){
+                if (e.Error){
+                    alert(responseJSON.RESULTS[0].Error)
+                    return;
+                }
+            }
             let r = responseJSON.RESULTS;
             
             if (r[0].Error){
@@ -512,11 +531,11 @@ function gameState(){
 
                 let bodyPart;
 
-
-                if (+r[3].ID_Player === +player_id){
+                if (+r[3].ID_Player[i] === +player_id){
                     for (let j = 0; j < monsters.length; j++){
                         if (+monsters[j] === +r[3].ID_Monster[i]){
                             mId = j;
+                            console.log(mId);
                         }
                     }
                 }
@@ -528,6 +547,7 @@ function gameState(){
                             mId += 1
                         }
                     }
+
                     prevMonster = +r[3].ID_Monster[i];
                 }
 
@@ -694,6 +714,11 @@ function PlayCard(){
         }
     }).then((responseJSON) => {
         console.log(responseJSON)
+        for (let e of responseJSON.RESULTS){
+            if (e.Error){
+                alert(responseJSON.RESULTS[0].Error)
+            }
+        }
         chosenCard = -1;
         chosenCard2 = -1;
         placeCardChoosing2 = false;
@@ -723,6 +748,12 @@ function takeCard(){
         }
     }).then((responseJSON) => {
         console.log(responseJSON)
+        for (let e of responseJSON.RESULTS){
+            if (e.Error){
+                alert(responseJSON.RESULTS[0].Error)
+            }
+        }
+
     });
 }
 
@@ -785,6 +816,16 @@ function discardCards(){
             }
         }).then((responseJSON) => {
             console.log(responseJSON)
+            for (let e of responseJSON.RESULTS){
+                if (e.Error){
+                    alert(responseJSON.RESULTS[0].Error)
+                    chosenCards = [];
+                    placeCardChoosing = false;
+                    placeCardChosen = false;
+                    document.getElementById('discard').classList.remove('hide');
+                    return;
+                }
+            }
         });
     }
 
@@ -806,6 +847,11 @@ function discardCards(){
             return error("Ошибка");
         }
     }).then((responseJSON) => {
+        for (let e of responseJSON.RESULTS){
+            if (e.Error){
+                alert(responseJSON.RESULTS[0].Error)
+            }
+        }
         console.log(responseJSON)
     });
 
