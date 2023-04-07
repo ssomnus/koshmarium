@@ -41,7 +41,9 @@ let cardChoosing = false;
 let chosenCard = -1;
 let timerQ;
 let seconds;
-let ChosenCard;
+let chosenCards = [];
+let placeCardChoosing = false;
+let placeCardChosen = false;
 
 
 function signin() {
@@ -382,13 +384,36 @@ function gameState(){
                 monsters.push(r[4].ID_Monster[i])
             }
 
-            for (let i = 0; i < r[5].ID.length; i++){
-                targetDiv.innerHTML +=
-                    `<div class="crd">
+            if (!placeCardChoosing){
+                for (let i = 0; i < r[5].ID.length; i++){
+                    targetDiv.innerHTML +=
+                        `<div class="crd">
                         <p>${r[5].ID_Card[i]}</p>
                         <img src="cards/${r[5].ID[i]}.png">
                     </div>`;
+                }
+            }else {
+                for (let i = 0; i < r[5].ID.length; i++){
+                    targetDiv.innerHTML +=
+                        `<div class="crd ${chosenCards.includes(r[5].ID_Card[i].toString()) ? 'chosen' : 'choosing'}">
+                        <p>${r[5].ID_Card[i]}</p>
+                        <img src="cards/${r[5].ID[i]}.png">
+                    </div>`;
+                }
+                let d = document.getElementsByClassName('crd');
+
+                for (let e of d) {
+                    e.addEventListener('click', function (){
+                        if (!e.classList.contains('chosen')){
+                            chosenCards.push(e.getElementsByTagName("p")[0].innerText)
+                            e.classList.remove('choosing')
+                            e.classList.add('chosen')
+                            placeCardChosen = true;
+                        }
+                    })
+                }
             }
+
 
             for (let i = 0; i < 5; i ++){
                 for (let j = 1; j < 4; j ++){
@@ -588,15 +613,46 @@ function takeCard(){
 }
 
 function chooseCards (){
-    let d = document.getElementsByClassName('crd')
+    if (placeCardChoosing){
+        document.getElementById('discard').classList.remove('hide');
+        let d = document.getElementsByClassName('crd');
+        for (let e of d) {
+            e.classList.add('choosing')
+        }
+        for (let e of d) {
+            e.addEventListener('click', function (){
+                if (!e.classList.contains('chosen')){
+                    chosenCards.push(e.getElementsByTagName("p")[0].innerText)
+                    e.classList.remove('choosing')
+                    e.classList.add('chosen')
+                    placeCardChosen = true;
+                }
+            })
+        }
+        //placeCardChosen = true;
+    }
+}
+
+function cancel(){
+    placeCardChoosing = false;
+    placeCardChosen = false;
+    chosenCards = [];
+    document.getElementById('discard').classList.add('hide');
+    let d = document.getElementsByClassName('crd');
+    for (let e of d) {
+        if (e.classList.contains('chosen')) e.classList.remove('chosen')
+        if (e.classList.contains('choosing')) e.classList.remove('choosing')
+    }
 }
 
 function discardCards(){
-    let cardNumber = prompt("Пожалуйста, введите айди карт которые вы хотите сбросить через пробел", `${cards[0][2]}`);
-    if (cardNumber === ' ') return;
-    cardNumber = cardNumber.split(' ');
+    if (!placeCardChosen){
+        placeCardChoosing = true;
+        chooseCards()
+        return;
+    }
 
-    for (let e of cardNumber){
+    for (let e of chosenCards){
         const url = "https://sql.lavro.ru/call.php?";
         let fd = new FormData();
         fd.append("pname", "ChooseDiscardedCard");
@@ -639,4 +695,8 @@ function discardCards(){
     }).then((responseJSON) => {
         console.log(responseJSON)
     });
+
+    chosenCards = [];
+    placeCardChoosing = false;
+    placeCardChosen = false;
 }

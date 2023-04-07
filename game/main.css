@@ -163,12 +163,7 @@ button:hover{
 	margin: 3px;
 }
 
-#myCards {
-	margin-top: 25px;
-}
-
 .coloda {
-	background-color: #fff;
 	min-width: 80%;
 	min-height: 150px;
 	display: flex;
@@ -177,11 +172,44 @@ button:hover{
 
 .crd {
 	background-color: rgb(80, 88, 97);
-	min-width: 200px;
+	min-width: 10px;
 	margin: 5px;
 }
 
 #count-time {
-	left: 20px;
+	margin-left: 20px;
 	color: white;
+}
+
+.modal-container {
+    background-color: rgb(80, 88, 97);
+	margin-top: 10px;
+    padding: 30px;
+    position: fixed;
+    top: 20px;
+    left: calc(100% - 700px);
+	/* left: 700px; */
+    width: 700px;
+    height: 500px;
+    overflow: auto;
+}
+
+.modal-container button {
+	height: 20px;
+	position: fixed;
+	margin-left: 15px;
+}
+
+.chosen{
+	border: 2px solid red;
+}
+
+.choosing{
+	border: 2px solid green;
+}
+
+.btn-coloda {
+	display: flex;
+	flex-direction: row;
+	margin-top: 25px;
 }

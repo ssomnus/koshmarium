@@ -49,7 +49,7 @@
     </div>
     <div class="tmove">
       <p>Время на ход <span class="tmove-value"></span> сек</p>
-      <input type="range" id="time-move" min="60" max="86400" step="10" value="60">
+      <input type="range" id="time-move" min="60" max="1800" step="30" value="60">
     </div>
     <button id="createGameBtn" onclick="newRoom()">Создать</button>
   </div>
@@ -71,13 +71,13 @@
     <div class="listPlayers">
 
     </div>
-    <!-- <button id="btnStartGame" onclick="">Начать игру</button> -->
   </div>
 </div>
 
 <!-- Игра -->
 <div class="game hide">
 
+  <span id="count-time">00:00</span>
   <div class="oblast">
 
     <!-- Всегда поле текущего  игрока -->
@@ -85,15 +85,13 @@
 
       <div class="btn-xod">
 
-        <span id="count-time">123</span>
-
         <!-- Для действия "взять карту из общей колоды" -->
         <button id="give" class="cnp" onclick="takeCard()">Взять карту</button>
 
         <!-- Для выбора сбрасываемых карт -->
         <button id="chooseDisc" class="cnp" onclick="discardCards()">Сбросить карты</button>
         <!-- Для действия "сбросить выбранные карты" -->
-        <button id="dicsard" class="cnp hide" onclick="">Сбросить</button>
+        <button id="discard" class="cnp hide" onclick="cancel()">Отменить выбор</button>
 
         <!-- Для действия "выложить карту из колоды" -->
         <button id="put" class="cnp" onclick="PutCard()">Выложить карту</button>
@@ -143,9 +141,24 @@
       </div>
 
       <!-- Вызов колоды игрока -->
-      <button id="myCards" class="cnp" onclick="openCards()">Колода</button>
+      <div class="btn-coloda">
+        <button id="myCards" class="cnp" onclick="openCards()">Колода</button>
+        <button id="closeCards" class="cnp hide"><img src="buttons/close.png"></button>
+      </div>
+
+      <!-- КОЛОДА ИГРОКА ДОЛЖНА БЫТЬ ЗДЕСЬ! -->
+      <div id="my-cards" class="modal-container">
+          <div class="coloda">
+
+          </div>
+    </div>
 
     </div>
+
+    <!-- Колода игрока
+    <div id="my-cards" class="">
+      <section class="coloda"></section>
+    </div> -->
 
     <!-- Поле для 2-ого игрока -->
     <div class="pole player-2">
@@ -285,12 +298,10 @@
       </div>
     </div>
 
-    <!-- Колода игрока -->
+    <!-- Колода игрока
     <div id="my-cards" class="">
-      <section class="coloda">
-
-      </section>
-    </div>
+      <section class="coloda"></section>
+    </div> -->
 
   </div>
 </div>
