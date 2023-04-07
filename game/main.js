@@ -121,6 +121,7 @@ function displayRooms(){
     let fd = new FormData();
     fd.append('pname', 'AllRooms');
     fd.append('db', '265117');
+    fd.append('p1', 'token');
     fd.append('format', 'columns_compact');
     const interval = setInterval(function() {
         if (showRoom){
@@ -141,14 +142,26 @@ function displayRooms(){
                     alert(r[0].Error)
                 }
                 else {
+
                     let v = document.getElementsByClassName('all-rooms')[0];
+                    let v2 = document.getElementsByClassName('my-rooms')[0];
                     v.innerHTML = ' ';
+
                     for (let i = 0; i < r[0].ID_Room.length; i++){
-                        v.innerHTML +=
-                            "<div>" +
-                            "ID комнаты: "+r[0].ID_Room[i] + " | Количество мест: " + r[0].MaxSeats[i] + " | игроков сейчас: " + r[0].count_players[i] +
+                        v.innerHTML += '<div>' + "ID комнаты: "+r[0].ID_Room[i] +
+                            " | Количество мест: " + r[0].MaxSeats[i] +
+                            " | игроков сейчас: " + r[0].count_players[i] +
                             "</div>";
                     }
+                    if (r[1].ID_Room.length > 0){
+                        v2.innerHTML = 'Вы состоите в: '
+                        for (let i = 0; i < r[1].ID_Room.length - 1; i++){
+                            v2.innerHTML += r[1].ID_Room[i] + ", "
+                        }
+                        v2.innerHTML += r[1].ID_Room[r[1].ID_Room.length - 1]
+                    }
+
+
                 }
             });
         }
@@ -365,6 +378,13 @@ function gameState(){
                     return;
                 }
             }
+
+            for (let e of responseJSON.RESULTS){
+                if (e.Win){
+                    alert(responseJSON.RESULTS[0].Win)
+                    window.location.reload()
+                }
+            }
             let r = responseJSON.RESULTS;
             
             if (r[0].Error){
@@ -403,7 +423,7 @@ function gameState(){
                 seconds += 1
             }, 1000);
 
-            if (r[1].Login[0] !== login){
+            if (r[1].Login[0] !== login || cardChoosing || placeCardChoosing || placeCardChosen2){
                 console.log('notMyTurn')
                 let g = document.getElementById('give');
                 let c = document.getElementById('chooseDisc');
@@ -411,7 +431,8 @@ function gameState(){
                 if (!g.classList.contains('hide')){
                     g.classList.add('hide')
                 }
-                if (!c.classList.contains('hide')){
+
+                if (!c.classList.contains('hide') && !placeCardChoosing){
                     c.classList.add('hide')
                 }
                 if (!p.classList.contains('hide')){
@@ -482,7 +503,6 @@ function gameState(){
                     }
 
                     let d = document.getElementsByClassName('crd');
-
                     for (let e of d) {
                         e.addEventListener('click', function (){
                             if (!e.classList.contains('chosen')){
@@ -591,6 +611,19 @@ function openCards(){
 function PutCard(){
     if (!cardChoosing && chosenCard === -1){
         cardChoosing = true;
+        document.getElementById('discard2').classList.remove('hide');
+        let g = document.getElementById('give');
+        let c = document.getElementById('chooseDisc');
+        let p = document.getElementById('put')
+        if (!g.classList.contains('hide')){
+            g.classList.add('hide')
+        }
+        if (!c.classList.contains('hide')){
+            c.classList.add('hide')
+        }
+        if (!p.classList.contains('hide')){
+            p.classList.add('hide')
+        }
         for (let q of document.getElementsByClassName('card')){
                 if (!q.classList.contains('filled') && q.classList.contains('pl1'))
                 q.style.border = '2px solid green';
@@ -611,7 +644,7 @@ function cardPut(){
 }
 
 function chooseCards2 (){
-    if (placeCardChoosing2){
+    if (cardChoosing){
         document.getElementById('discard2').classList.remove('hide');
         let d = document.getElementsByClassName('crd');
         for (let e of d) {
@@ -634,20 +667,34 @@ function chooseCards2 (){
 }
 
 function cancel2(){
-    placeCardChoosing2 = false;
+    console.log('cancel2 here !!!')
+    document.getElementById('discard2').classList.remove('hide')
+
+    let g = document.getElementById('give');
+    let c = document.getElementById('chooseDisc');
+    let p = document.getElementById('put')
+    if (g.classList.contains('hide')){
+        g.classList.remove('hide')
+    }
+    if (c.classList.contains('hide')){
+        c.classList.remove('hide')
+    }
+    if (p.classList.contains('hide')){
+        p.classList.remove('hide')
+    }
+
+    cardChoosing = false;
     placeCardChosen2 = false;
     chosenCard2 = -1;
     document.getElementById('discard2').classList.add('hide');
-    let d = document.getElementsByClassName('crd');
-    for (let e of d) {
-        if (e.classList.contains('chosen')) e.classList.remove('chosen')
-        if (e.classList.contains('choosing')) e.classList.remove('choosing')
+    for (let q of document.getElementsByClassName('card')){
+        q.style.border = '1px dotted purple';
     }
 }
 
 function PlayCard(){
     if (!placeCardChosen2){
-        placeCardChoosing2 = true;
+        cardChoosing = true;
         chooseCards2()
         return;
     }
@@ -719,12 +766,12 @@ function PlayCard(){
                 alert(responseJSON.RESULTS[0].Error)
             }
         }
-        chosenCard = -1;
-        chosenCard2 = -1;
-        placeCardChoosing2 = false;
-        placeCardChosen2 = false;
-        document.getElementById('discard2').classList.add('hide');
     });
+    chosenCard = -1;
+    chosenCard2 = -1;
+    cardChoosing = false;
+    placeCardChosen2 = false;
+    document.getElementById('discard2').classList.add('hide');
 }
 
 function takeCard(){
@@ -778,6 +825,19 @@ function chooseCards (){
 }
 
 function cancel(){
+    console.log('myTurn')
+    let g = document.getElementById('give');
+    let c = document.getElementById('chooseDisc');
+    let p = document.getElementById('put')
+    if (g.classList.contains('hide')){
+        g.classList.remove('hide')
+    }
+    if (c.classList.contains('hide')){
+        c.classList.remove('hide')
+    }
+    if (p.classList.contains('hide')){
+        p.classList.remove('hide')
+    }
     placeCardChoosing = false;
     placeCardChosen = false;
     chosenCards = [];
@@ -791,6 +851,15 @@ function cancel(){
 
 function discardCards(){
     if (!placeCardChosen){
+
+        let g = document.getElementById('give');
+        let p = document.getElementById('put')
+        if (!g.classList.contains('hide')){
+            g.classList.add('hide')
+        }
+        if (!p.classList.contains('hide')){
+            p.classList.add('hide')
+        }
         placeCardChoosing = true;
         chooseCards()
         return;
@@ -822,7 +891,7 @@ function discardCards(){
                     chosenCards = [];
                     placeCardChoosing = false;
                     placeCardChosen = false;
-                    document.getElementById('discard').classList.remove('hide');
+                    document.getElementById('discard').classList.add('hide');
                     return;
                 }
             }
@@ -858,5 +927,5 @@ function discardCards(){
     chosenCards = [];
     placeCardChoosing = false;
     placeCardChosen = false;
-    document.getElementById('discard').classList.remove('hide');
+    document.getElementById('discard').classList.add('hide');
 }
