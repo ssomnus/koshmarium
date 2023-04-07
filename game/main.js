@@ -44,6 +44,9 @@ let seconds;
 let chosenCards = [];
 let placeCardChoosing = false;
 let placeCardChosen = false;
+let chosenCard2 = [];
+let placeCardChoosing2 = false;
+let placeCardChosen2 = false;
 
 
 function signin() {
@@ -376,6 +379,37 @@ function gameState(){
                 seconds += 1
             }, 1000);
 
+            if (r[1].Login[0] !== login){
+                console.log('notMyTurn')
+                let g = document.getElementById('give');
+                let c = document.getElementById('chooseDisc');
+                let p = document.getElementById('put')
+                if (!g.classList.contains('hide')){
+                    g.classList.add('hide')
+                }
+                if (!c.classList.contains('hide')){
+                    c.classList.add('hide')
+                }
+                if (!p.classList.contains('hide')){
+                    p.classList.add('hide')
+                }
+            }
+            else{
+                console.log('myTurn')
+                let g = document.getElementById('give');
+                let c = document.getElementById('chooseDisc');
+                let p = document.getElementById('put')
+                if (g.classList.contains('hide')){
+                    g.classList.remove('hide')
+                }
+                if (c.classList.contains('hide')){
+                    c.classList.remove('hide')
+                }
+                if (p.classList.contains('hide')){
+                    p.classList.remove('hide')
+                }
+            }
+
             for (let i = 0; i < r[5].ID.length; i++){
                 cards.push([r[5].ID[i],r[5].PartName[i],r[5].ID_Card[i]])
             }
@@ -384,7 +418,7 @@ function gameState(){
                 monsters.push(r[4].ID_Monster[i])
             }
 
-            if (!placeCardChoosing){
+            if (!placeCardChoosing && !placeCardChoosing2){
                 for (let i = 0; i < r[5].ID.length; i++){
                     targetDiv.innerHTML +=
                         `<div class="crd">
@@ -393,24 +427,51 @@ function gameState(){
                     </div>`;
                 }
             }else {
-                for (let i = 0; i < r[5].ID.length; i++){
-                    targetDiv.innerHTML +=
-                        `<div class="crd ${chosenCards.includes(r[5].ID_Card[i].toString()) ? 'chosen' : 'choosing'}">
+                if (placeCardChoosing){
+                    for (let i = 0; i < r[5].ID.length; i++){
+                        targetDiv.innerHTML +=
+                            `<div class="crd ${chosenCards.includes(r[5].ID_Card[i].toString()) ? 'chosen' : 'choosing'}">
                         <p>${r[5].ID_Card[i]}</p>
                         <img src="cards/${r[5].ID[i]}.png">
                     </div>`;
-                }
-                let d = document.getElementsByClassName('crd');
+                    }
+                    let d = document.getElementsByClassName('crd');
 
-                for (let e of d) {
-                    e.addEventListener('click', function (){
-                        if (!e.classList.contains('chosen')){
-                            chosenCards.push(e.getElementsByTagName("p")[0].innerText)
-                            e.classList.remove('choosing')
-                            e.classList.add('chosen')
-                            placeCardChosen = true;
-                        }
-                    })
+                    for (let e of d) {
+                        e.addEventListener('click', function (){
+                            if (!e.classList.contains('chosen')){
+                                chosenCards.push(e.getElementsByTagName("p")[0].innerText)
+                                e.classList.remove('choosing')
+                                e.classList.add('chosen')
+                                placeCardChosen = true;
+                            }
+                        })
+                    }
+                }
+                else {
+                    for (let i = 0; i < r[5].ID.length; i++){
+                        targetDiv.innerHTML +=
+                            `<div class="crd choosing">
+                        <p>${r[5].ID_Card[i]}</p>
+                        <img src="cards/${r[5].ID[i]}.png">
+                    </div>`;
+                    }
+
+                    let d = document.getElementsByClassName('crd');
+
+                    for (let e of d) {
+                        e.addEventListener('click', function (){
+                            if (!e.classList.contains('chosen')){
+                                chosenCard2 = e.getElementsByTagName("p")[0].innerText
+                                for (let e of d) {
+                                    if (e.classList.contains('chosen')) e.classList.remove('chosen')
+                                    if (e.classList.contains('choosing')) e.classList.remove('choosing')
+                                }
+                                placeCardChosen2 = true;
+                                PlayCard();
+                            }
+                        })
+                    }
                 }
             }
 
@@ -492,12 +553,13 @@ function gameState(){
                     `<img src="${"cards/" + r[3].ID[i] + '.png'}" style="width: 80px; height: 52.400px">`
 
             }
+
         });
     }, 3000);
 }
 
 function openCards(){
-    let targetDiv = document.getElementsByClassName('coloda')[0];
+    let targetDiv = document.getElementById('my-cards');
     targetDiv.classList.contains('hide') ? targetDiv.classList.remove('hide') : targetDiv.classList.add('hide')
 }
 
@@ -523,14 +585,57 @@ function cardPut(){
     PlayCard()
 }
 
+function chooseCards2 (){
+    if (placeCardChoosing2){
+        document.getElementById('discard2').classList.remove('hide');
+        let d = document.getElementsByClassName('crd');
+        for (let e of d) {
+            e.classList.add('choosing')
+        }
+        for (let e of d) {
+            e.addEventListener('click', function (){
+                if (!e.classList.contains('chosen')){
+                    chosenCard2 = e.getElementsByTagName("p")[0].innerText
+                    for (let e of d) {
+                        if (e.classList.contains('chosen')) e.classList.remove('chosen')
+                        if (e.classList.contains('choosing')) e.classList.remove('choosing')
+                    }
+                    placeCardChosen2 = true;
+                    PlayCard();
+                }
+            })
+        }
+    }
+}
+
+function cancel2(){
+    placeCardChoosing2 = false;
+    placeCardChosen2 = false;
+    chosenCard2 = -1;
+    document.getElementById('discard2').classList.add('hide');
+    let d = document.getElementsByClassName('crd');
+    for (let e of d) {
+        if (e.classList.contains('chosen')) e.classList.remove('chosen')
+        if (e.classList.contains('choosing')) e.classList.remove('choosing')
+    }
+}
+
 function PlayCard(){
-    let cardNumber = prompt("Пожалуйста, введите номер карты", `${cards[0][2]}`);
+    if (!placeCardChosen2){
+        placeCardChoosing2 = true;
+        chooseCards2()
+        return;
+    }
+    console.log('here')
+
+    let cardNumber = chosenCard2;
     let ifInCards = false;
     for (let e of cards){
         if (e[2] == cardNumber){
             ifInCards = true;
         }
     }
+
     if (!ifInCards) {
         alert('у вас нет такой карты');
         chosenCard = -1;
@@ -585,6 +690,10 @@ function PlayCard(){
     }).then((responseJSON) => {
         console.log(responseJSON)
         chosenCard = -1;
+        chosenCard2 = -1;
+        placeCardChoosing2 = false;
+        placeCardChosen2 = false;
+        document.getElementById('discard2').classList.add('hide');
     });
 }
 
@@ -629,7 +738,6 @@ function chooseCards (){
                 }
             })
         }
-        //placeCardChosen = true;
     }
 }
 
@@ -699,4 +807,5 @@ function discardCards(){
     chosenCards = [];
     placeCardChoosing = false;
     placeCardChosen = false;
+    document.getElementById('discard').classList.remove('hide');
 }
